@@ -12,8 +12,8 @@
 *****/
 
 #ifdef __amigaos4__
-#include "amigaos4.h"
-#include "missing.h"
+// Not real mac, we need some defines.
+#include "MacEmuLib.h"
 #endif
 
 #include <stdio.h>

@@ -1,13 +1,5 @@
 
-#ifdef __amigaos4__
-#include <proto/intuition.h>
-#include <proto/graphics.h>
-#include "amigaos4.h"
-#include "missing.h"
-
-#undef HideWindow
-
-#endif
+#include "MacEmuLib.h"
 
 PixMap screenBits;
 

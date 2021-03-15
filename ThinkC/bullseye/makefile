@@ -1,12 +1,12 @@
 
 p =../
-incdir = -I ${p}${p}shockmac/ShockMac/Libraries/
-incdir += -I ../
+incdir += -I ${p}${p}
 
-libdir = -I ${p}${p}shockmac/ShockMac/LIB/
+libdir = -L ${p}${p}lib/
+
+libs = -lMacEmu
 
 deps = bullwindow.c 
-deps += ${p}emuMac.c
 
 objs = ${deps:.c=.o}
 
@@ -15,11 +15,11 @@ name = bullseye.exe
 opts = -D__USE_INLINE__
 
 all:	$(objs)
-	gcc ${incdir} ${libdir} $(opts) bullseye.c $(objs) -o $(name)
+	gcc ${incdir} ${libdir} $(opts) bullseye.c $(objs) $(libs) -o $(name)
 
 
 %.o:	%.c
-		gcc -c ${incdir} ${libdir} $(opts) $< $(libs) -o $@
+		gcc -c ${incdir} ${libdir} $(opts)  $< -o $@
 
 clean:
 	rm $(objs) $(name)

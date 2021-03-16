@@ -382,7 +382,7 @@ void SystemTask();
 void TEInit();
 bool TrackGoAway( void *win ,Point where);
 short _mac_FSOpen( const char *name, int refNum, short *fRef );
-short _mac_FSRead( short fd, long *size, void *ptr);
+short _mac_FSRead( short fd, long int *size, void *ptr);
 void _mac_FSClose( short fd );
 void SFGetFile( Point p,const char *,int,int,int,int, SFReply *tr);
 void FrameRect(Rect *r);

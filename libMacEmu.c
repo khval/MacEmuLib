@@ -1,5 +1,6 @@
 
 #include "MacEmuLib.h"
+#include "vector_array.h"
 
 PixMap screenBits;
 
@@ -53,45 +54,44 @@ struct LayersIFace		*ILayers = NULL;
 
 // we work with arrays, just makes it easy to cleanup, (looks like MacOS program suck, at this.)
 
-BPTR _mac_fd_array[100];
-int m(allocated_fd) = 0;
+struct _vector_array * m(fd) = NULL;
+struct _vector_array * m(windows) = NULL;
 
-WindowPtr m(windows)[100];
-int m(open_windows) = 0;
+
+void mac_fd_destructor (void *item)
+{
+	FClose( (BPTR) item );
+}
 
 void cleanup_fd()
 {
 	if (IDOS)
 	{
-		while (m(allocated_fd))
+		while (m(fd) -> used)
 		{
-			if (_mac_fd_array[m(allocated_fd)-1])
-			{
-				FClose( _mac_fd_array[m(allocated_fd)-1] );
-				_mac_fd_array[m(allocated_fd)-1] = 0;
-			}
-			m(allocated_fd) --;
+			_vector_array_erase(m(fd), m(fd) -> array, mac_fd_destructor );
 		}
 	}
+}
 
+void macWindow_destructor(void *item)
+{
+	WindowPtr macWindow = (WindowPtr) item;
+
+	if (macWindow->AmigaWindow)
+	{
+		CloseWindow(macWindow->AmigaWindow);
+	}
+	free(macWindow);
 }
 
 void cleanup_windows()
 {
 	if (IIntuition == NULL)  return;
 
-	while (m(open_windows))
+	while (m(windows)->used)
 	{
-		if (m(windows)[m(open_windows)-1])
-		{
-			if (m(windows)[m(open_windows)-1]->AmigaWindow)
-			{
-				CloseWindow(m(windows)[m(open_windows)-1]->AmigaWindow);
-				m(windows)[m(open_windows)-1]->AmigaWindow = NULL;
-			}
-			m(windows)[m(open_windows)-1] = NULL;
-		}
-		m(open_windows)--;
+		_vector_array_erase(m(windows), m(windows) -> array, macWindow_destructor );
 	}
 }
 
@@ -131,8 +131,6 @@ static bool init()
 
 static void cleanup()
 {
-	cleanup_fd();
-	cleanup_windows();
 
 	if (IDebug) DropInterface((struct Interface*) IDebug); IDebug = 0;
 
@@ -171,11 +169,43 @@ bool OpenMacEMU()
 		cleanup();
 		return false;
 	}
+
+	m(windows) = _vector_array_new();
+	if (m(windows) == NULL)
+	{
+		CloseMacEMU();
+		return false;
+	}
+
+	m(fd) = _vector_array_new();
+	if (m(fd) == NULL)
+	{
+		CloseMacEMU();
+		return false;
+	}
+
 	return true;
 }
 
 void CloseMacEMU()
 {
+	// erase items inside array..
+
+	cleanup_fd();
+	cleanup_windows();
+
+	if (m(windows))	// remove the array
+	{
+		_vector_array_delete(m(windows));
+		m(windows) = NULL;
+	}
+
+	if (m(fd))	// remove the array
+	{
+		_vector_array_delete(m(fd));
+		m(fd) = NULL;
+	}
+
 	cleanup();
 }
 
@@ -272,8 +302,11 @@ WindowPtr NewWindow( int value1, Rect *bounds,const char *title, bool opt1, uint
 		}
 	}
 
-	m(open_windows)++;
-	m(windows)[m(open_windows)-1] = macWindow;
+	if (_vector_array_push_back( m(windows), macWindow ) == false)
+	{
+		macWindow_destructor(macWindow);
+		macWindow = NULL;
+	}
 
 	return macWindow;
 }
@@ -356,37 +389,39 @@ bool TrackGoAway( void *win ,Point where )
 
 short _mac_FSOpen(const char *name, int refNum, short *fd)
 {
-	m(allocated_fd) ++;
-	*fd = m(allocated_fd);
+	BPTR _fd;
+	void **i;
 
-	_mac_fd_array[*fd-1] = FOpen( name, MODE_READWRITE, 0);
+	_fd = FOpen( name, MODE_READWRITE, 0);
 
-	if (_mac_fd_array[*fd-1] != 0 )
+	if (_fd)
 	{
-		return true;
+		i =  _vector_array_push_back(m(fd), (void *)  _fd );
+		if (i)
+		{
+			*fd = i - m(fd) -> array +1;	// fd can't be 0.
+		}
 	}
 
-	m(allocated_fd) --;
-	*fd = m(allocated_fd);
-	return false;
+	return 0;	// failed.
 }
 
 
-short _mac_FSRead( short fd, long *size, void *ptr)
+short _mac_FSRead( short fd, long int *size, void *ptr)
 {
-	if (_mac_fd_array[fd])
+	if (m(fd) -> array[fd])
 	{
-		Close( _mac_fd_array[fd] );
-		_mac_fd_array[fd] = 0;
+		return Read( (BPTR) m(fd)->array[fd-1], ptr, *size );
 	}
+
+	return 0;
 }
 
 void _mac_FSClose(short fd)
 {
-	if (_mac_fd_array[fd])
+	if (fd)
 	{
-		Close( _mac_fd_array[fd] );
-		_mac_fd_array[fd] = 0;
+		_vector_array_erase(m(fd),  m(fd) -> array + fd -1, mac_fd_destructor );
 	}
 }
 

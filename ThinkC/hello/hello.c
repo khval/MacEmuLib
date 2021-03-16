@@ -28,6 +28,14 @@ int main()
 	char		*Ptr;
 	long		count;
 
+#ifdef __amigaos4__
+	if (OpenMacEMU() == false)
+	{
+		CloseMacEMU();
+		return 0;
+	}
+#endif
+
 	typedef struct
 	 {
 		int	jour;
@@ -69,7 +77,10 @@ int main()
 		free(Buf);
 
 	}
+
 #ifdef __amigaos4__
+	CloseMacEMU();
 	return 0;
 #endif
+
 }

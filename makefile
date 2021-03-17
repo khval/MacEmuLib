@@ -3,6 +3,7 @@
 p =../
 incdir += -I ./
 
+files += pathTranslate.c
 files += vector_array.c
 files += libMacEmu.c
 files_o = ${files:.c=.o}

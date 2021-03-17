@@ -1,6 +1,7 @@
 
 #include "MacEmuLib.h"
 #include "vector_array.h"
+#include "pathTranslate.h"
 
 PixMap screenBits;
 
@@ -381,12 +382,15 @@ bool TrackGoAway( void *win ,Point where )
 {
 }
 
-short _mac_FSOpen(const char *name, int refNum, short *fd)
+short _mac_FSOpen(const char *mname, int refNum, short *fd)
 {
 	BPTR _fd;
 	void **i;
 
-	_fd = FOpen( name, MODE_READWRITE, 0);
+	char *aname = _mac_to_amiga_path( mname );
+	if (aname == NULL) 	return 0;	// failed.
+
+	_fd = FOpen( aname, MODE_READWRITE, 0);
 
 	if (_fd)
 	{
@@ -396,6 +400,8 @@ short _mac_FSOpen(const char *name, int refNum, short *fd)
 			*fd = i - m(fd) -> array +1;	// fd can't be 0.
 		}
 	}
+
+	free(aname);
 
 	return 0;	// failed.
 }

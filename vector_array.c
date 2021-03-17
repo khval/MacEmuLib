@@ -7,7 +7,7 @@
 
 #include "vector_array.h"
 
-struct _vector_array *_vector_array_new()
+struct _vector_array *_vector_array_new( void (*dispose_item) (void *item) )
 {
 	struct _vector_array *_new;
 
@@ -18,6 +18,7 @@ struct _vector_array *_vector_array_new()
 		_new -> used = 0;
 		_new -> allocated = 20;
 		_new -> array = (void ** ) calloc( _new -> allocated, sizeof(void *) );
+		_new -> dispose_item = dispose_item;
 
 		if (_new -> array == NULL)	// failed...
 		{
@@ -34,6 +35,8 @@ bool _vector_array_delete(struct _vector_array *c)
 
 	if (c)
 	{
+		_vector_array_clear( c );
+
 		if (c -> array ) free (c-> array);
 		free(c);
 		return true;
@@ -64,14 +67,14 @@ void ** _vector_array_push_back(struct _vector_array *c,  void  *i )
 	return NULL;
 }
 
-void _vector_array_erase(struct _vector_array *c,  void  **i, void (*fn) (void *item) )
+void _vector_array_erase(struct _vector_array *c, void  **i )
 {
 	if (c->used)
 	{
 		void **used_end = c -> array + c -> used;
 		void **ptr = i +1;	// next ptr
 
-		fn(*i);
+		c -> dispose_item(*i);
 
 		while ( ptr < used_end )	// close gap.
 		{
@@ -81,6 +84,14 @@ void _vector_array_erase(struct _vector_array *c,  void  **i, void (*fn) (void *
 
 		c->array[ c->used-1 ] = NULL;	// remove trash at end.
 		c->used --;
+	}
+}
+
+void _vector_array_clear(struct _vector_array *c )
+{
+	while (c -> used)
+	{
+		_vector_array_erase(c, c -> array );
 	}
 }
 
@@ -95,6 +106,7 @@ bool _vector_array_resize(struct _vector_array *c)
 		memcpy(  new_array, c-> array,  sizeof(void *) * c->used );
 		free(c -> array);
 		c->array = new_array;
+		c -> allocated = new_alloacted;
 		return true;
 	}
 	return false;

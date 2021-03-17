@@ -67,10 +67,7 @@ void cleanup_fd()
 {
 	if (IDOS)
 	{
-		while (m(fd) -> used)
-		{
-			_vector_array_erase(m(fd), m(fd) -> array, mac_fd_destructor );
-		}
+		_vector_array_clear( m(fd) );
 	}
 }
 
@@ -89,10 +86,7 @@ void cleanup_windows()
 {
 	if (IIntuition == NULL)  return;
 
-	while (m(windows)->used)
-	{
-		_vector_array_erase(m(windows), m(windows) -> array, macWindow_destructor );
-	}
+	_vector_array_clear(m(windows));
 }
 
 
@@ -170,14 +164,14 @@ bool OpenMacEMU()
 		return false;
 	}
 
-	m(windows) = _vector_array_new();
+	m(windows) = _vector_array_new( macWindow_destructor );
 	if (m(windows) == NULL)
 	{
 		CloseMacEMU();
 		return false;
 	}
 
-	m(fd) = _vector_array_new();
+	m(fd) = _vector_array_new( mac_fd_destructor );
 	if (m(fd) == NULL)
 	{
 		CloseMacEMU();
@@ -421,7 +415,7 @@ void _mac_FSClose(short fd)
 {
 	if (fd)
 	{
-		_vector_array_erase(m(fd),  m(fd) -> array + fd -1, mac_fd_destructor );
+		_vector_array_erase(m(fd),  m(fd) -> array + fd -1 );
 	}
 }
 

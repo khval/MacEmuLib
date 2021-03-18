@@ -5,7 +5,7 @@ the project also contains ThinkC examples converted for use with GNUC, for testi
 
 The aim of this project is make it not too hard to port or convert MacOS7.x.x programs, so that they will run on AmigaOS4.x.
 
-The approach to project is kind ad-hok, no practical strategy, everything is loosely proto typed, the assumption I work by everything is correct until its not, then I refabricate code, to make it fit, this project is pretty much about fitting a square inside circle. the assumption is that examples are always correct, and fault is always the library if something is broken.
+The approach to this project is kind ad-hok, no practical strategy, everything is loosely proto typed, the assumption I work by everything is correct until its not, then I refabricate code, to make it fit, this project is pretty much about fitting a square inside circle. the assumption is that examples are always correct, and fault is always inside the library if something is broken, all examples in the project should also be compilable on MacOS 7.x.x.
 
 Anyway this project will fall under MIT License with exceptions.
 

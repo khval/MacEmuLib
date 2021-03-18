@@ -204,7 +204,6 @@ void CloseMacEMU()
 	cleanup();
 }
 
-void AdjustMenus(){}
 void BeginUpdate(){}
 void DragWindow(){}
 void EndUpdate(){}
@@ -219,8 +218,8 @@ int FindWindow(Point where, void *ptr)
 void FlushEvents( uint32_t mask, uint32_t xxxx);
 void *FrontWindow(){}
 
-void HandleMenu( void *ptr){}
-void HideWindow(){}
+void HideWindow( WindowPtr win ){}
+void ShowWindow( WindowPtr win ) {}
 void HiliteMenu(){}
 void InitCursor(){}
 void InitDialogs(){}
@@ -239,9 +238,10 @@ void InsetRect( Rect *r, int w,int h )
 
 void InvalRect(){}
 void MaxApplZone(){}
-void *MenuKey(char key) 
+
+short MenuKey(char key) 
 {
-	return NULL;
+	return 0;
 }
 
 void MenuSelect(Point where)
@@ -362,10 +362,6 @@ bool GetNextEvent( int opt, EventRecord *er)
 }
 
 
-void SetUpMenus()
-{
-}
-
 void SystemClick()
 {
 }
@@ -480,5 +476,67 @@ void FrameRect(Rect*r)
 {
        RectFill(amigaWindow -> RPort, r->left, r->top,
                      r->right, r->bottom);
+}
+
+void *NewMenu(short id, const char *description)
+{
+	return 0;
+}
+
+void AppendMenu(void *menu, const char *description)
+{
+
+}
+
+void InsertMenu( void *menu, short num )
+{
+}
+
+void DrawMenuBar()
+{
+}
+
+void AddResMenu(void *menu, uint16_t ref)
+{
+}
+
+void CheckItem(void *menu, int width, bool enabled)
+{
+}
+
+void	EnableItem(void *menu, short item)
+{
+}
+
+void 	DisableItem(void * menu, short item)
+{
+}
+
+void 	GetPort( GrafPtr *port )
+{
+}
+
+void GetItem( void *menu, int Item,const char *name)
+{
+}
+
+void OpenDeskAcc(GrafPtr *port)
+{
+}
+
+void CloseDeskAcc( short windowKind )
+{
+}
+
+void ExitToShell()
+{
+}
+
+bool SystemEdit( int item )
+{
+}
+
+void SysBeep(int nr)
+{
 }
 

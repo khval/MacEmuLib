@@ -6,6 +6,7 @@
 
 #undef EraseRect
 #undef HideWindow
+#undef ShowWindow
 #undef EraseRect
 #undef GetNextEvent
 #undef Draw
@@ -109,7 +110,8 @@ typedef struct {
 typedef struct __mac_window__{
 	void *portRect;
 	bool hilited;
-
+	short windowKind;
+	bool visible;
 	struct Window *AmigaWindow;
 } *WindowPtr;
 
@@ -349,7 +351,6 @@ extern void mprint( const char *str );
 extern bool OpenMacEMU();
 extern void CloseMacEMU();
 
-void AdjustMenus();
 void BeginUpdate();
 void DragWindow();
 void EndUpdate();
@@ -359,7 +360,6 @@ int FindWindow(Point where, void *ptr);
 void FlushEvents( uint32_t mask, uint32_t xxxx);
 void *FrontWindow();
 bool GetNextEvent( int opt, EventRecord *er);
-void HandleMenu( void *);
 void HideWindow();
 void HiliteMenu();
 void InitCursor();
@@ -371,12 +371,9 @@ void InitWindows();
 void InsetRect( Rect *r, int w,int h );
 void InvalRect();
 void MaxApplZone();
-void *MenuKey(char key);
-void MenuSelect(Point where);
 WindowPtr NewWindow( int, Rect *bounds,const char *title, bool , uint32_t opt1, WindowPtr cloneFrom, bool opt2, int value);
 void SelectWindow();
 void SetPort( WindowPtr ptr);
-void SetUpMenus();
 void SystemClick();
 void SystemTask();
 void TEInit();
@@ -387,7 +384,29 @@ void _mac_FSClose( short fd );
 void SFGetFile( Point p,const char *,int,int,int,int, SFReply *tr);
 void FrameRect(Rect *r);
 void FrameOval(Rect *r);
+void CloseDeskAcc( short windowKind );
+
+short MenuKey(char key);
+void MenuSelect(Point where);
+void *NewMenu(short id, const char *description);
+void AppendMenu(void *, const char *description);
+void InsertMenu( void *menu, short num );
+void DrawMenuBar();
+void AddResMenu(void *menu, uint16_t ref);
+void CheckItem(void *menu, int width, bool enabled);
+void EnableItem(void *menu, short item);
+void DisableItem(void * menu, short item);
+void GetPort( GrafPtr *port );
+void GetItem( void *menu, int Item,const char *name);
+void OpenDeskAcc(GrafPtr *port);
+void ExitToShell();
+bool SystemEdit( int item );
+void SysBeep(int nr);
+
+#define HiWord(x) ( (x) >> 16);
+#define LoWord(x) ( (x) & 0xFFFF)
 
 #ifdef __cplusplus
 }
 #endif
+

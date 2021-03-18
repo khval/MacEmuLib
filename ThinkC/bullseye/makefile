@@ -7,6 +7,7 @@ libdir = -L ${p}${p}lib/
 libs = -lMacEmu
 
 deps = bullwindow.c 
+deps += bullMenus.c
 
 objs = ${deps:.c=.o}
 

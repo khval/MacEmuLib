@@ -16,5 +16,9 @@ As for the Symantic examples you should not use this commercially. I can’t and
 
 I’m assuming that Symantec examples where to allow beginner to get started, so I guess its ok to copy to modify and share, but it does not really say if you can use this commercially or not. Think C is publicly available on Macintosh repositories and manual, can also be found in PDF format, because Symantec has not asked these files to be removed, I assume its abandoned. The product (Think C) is from 1991, and is not really relevant today. I doubt they care anymore. (just because it abandoned does not mean they are not the copyright holders; they can ask to have these files removed.)
 
+Old useful manuals and documentation can be found here:
+
+https://vintageapple.org/macprogramming/
+
 Best Regards
 Kjetil

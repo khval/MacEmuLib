@@ -14,12 +14,7 @@ extern	Rect		dragRect;
 
 void InitMacintosh(void);
 void HandleMouseDown (EventRecord	*theEvent);
-
-#ifdef __amigaos4__
-bool HandleEvent(void);
-#else
 void HandleEvent(void);
-#endif
 
 void InitMacintosh(void)
 {
@@ -47,7 +42,7 @@ void HandleMouseDown (EventRecord	*theEvent)
 
 	    	  case inMenuBar:
 				AdjustMenus();
-//				HandleMenu(MenuSelect(theEvent->where));
+				HandleMenu(MenuSelect(theEvent->where));
 				break;
 
 	    	  case inDrag:
@@ -71,11 +66,7 @@ void HandleMouseDown (EventRecord	*theEvent)
       	}
 }
 
-#ifdef __amigaos4__
-bool  HandleEvent(void)
-#else
 void  HandleEvent(void)
-#endif
 {
 	int			ok;
 	EventRecord	theEvent;
@@ -110,10 +101,6 @@ void  HandleEvent(void)
 					InvalRect(&bullseyeWindow->portRect);
 					break;
 		}
-
-#ifdef __amigaos4__
-	return true;
-#endif
 }
 
 int main()
@@ -128,7 +115,7 @@ int main()
  	SetUpWindow();
 
 #ifdef __amigaos4__
-	while (HandleEvent()) { Delay(1); }
+	for (;;) { HandleEvent();  Delay(1); }
 #else
 	for (;;) HandleEvent();
 #endif

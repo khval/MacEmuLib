@@ -112,3 +112,14 @@ bool _vector_array_resize(struct _vector_array *c)
 	return false;
 }
 
+void _vector_array_for_each( struct _vector_array *c, void (*etch_item) (void *item) )
+{
+	void **i;
+	void **i_end = c -> array + c -> used;
+
+	for (i = c -> array; i<i_end;i++)
+	{
+		if (*i)	etch_item( *i );
+	}
+}
+

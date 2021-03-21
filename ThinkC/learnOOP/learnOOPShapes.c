@@ -1,4 +1,4 @@
-/***** * LearnOOPShapes.c * Copyright ï¿½ 1991 Symantec Corporation. All rights reserved. 
+/***** * LearnOOPShapes.c * Copyright © 1991 Symantec Corporation. All rights reserved. 
 *
 *		These are the methods that operate on the shapes in the 
 *		LearnOOP tutorial. 

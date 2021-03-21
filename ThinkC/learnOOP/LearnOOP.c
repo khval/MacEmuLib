@@ -1,6 +1,6 @@
 /*****
 * LearnOOP.c 
-* Copyright ï¿½ 1991 Symantec Corporation. All rights reserved. 
+* Copyright © 1991 Symantec Corporation. All rights reserved. 
 *
 *		The main file of the LearnOOP tutorial. 
 *

@@ -1,6 +1,6 @@
 /*****
 *	windowUtils.c 
-*	Copyright ï¿½ 1991 Symantec Corporation. All rights reserved. 
+*	Copyright © 1991 Symantec Corporation. All rights reserved. 
 *
 *		Utility functions for the LearnOOP tutorial. These routines 
 *		set up the console and drawing windows and provide a 

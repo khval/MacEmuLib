@@ -26,7 +26,7 @@ void n(attach_menu_to_window)(void *item)
 
 	if ((awc -> vi) && (awc-> menu))
 	{
-		if ( awc -> vi )LayoutMenus( awc -> menu, awc -> vi, GTMN_NewLookMenus, TRUE, TAG_END );
+		if ( awc -> vi ) LayoutMenus( awc -> menu, awc -> vi, GTMN_NewLookMenus, TRUE, TAG_END );
 	}
 	SetMenuStrip(awc -> win, awc -> menu );
 }
@@ -67,6 +67,8 @@ void n(free_menu)()
 	}
 }
 
+#define menuID( menu, item )  (void *) ((menu <<16) | item)
+
 void m(set_menus_items)(void *item)		// We need the size, so we can make menu table for AmigaOS.
 {
 	int n = n(create_menu_counter);
@@ -80,7 +82,7 @@ void m(set_menus_items)(void *item)		// We need the size, so we can make menu ta
     	n(menu)[n].nm_CommKey = "";
     	n(menu)[n].nm_Flags = flag;        
     	n(menu)[n].nm_MutualExclude = 0 ;
-    	n(menu)[n].nm_UserData = (void *) n;
+    	n(menu)[n].nm_UserData = menuID( menu -> id ,0 );
 
 	n(create_menu_counter) ++;
 	n = n(create_menu_counter);
@@ -92,7 +94,9 @@ void m(set_menus_items)(void *item)		// We need the size, so we can make menu ta
    	 	n(menu)[n].nm_CommKey = NULL;
    	 	n(menu)[n].nm_Flags = flag;        
    	 	n(menu)[n].nm_MutualExclude = 0 ;
-	    	n(menu)[n].nm_UserData = (void *) n;
+	    	n(menu)[n].nm_UserData = menuID( menu -> id ,nn+1 );
+
+		printf("nm_UserData: %08x\n",n(menu)[n].nm_UserData);
 
 		n(create_menu_counter) ++;
 		n = n(create_menu_counter);
@@ -140,8 +144,8 @@ void n(create_menu)()
 		printf("menus_items_count: %d\n", m(menus_items_count) );
 		printf("create_menu_counter: %d\n",n(create_menu_counter) );
 	}
-
 	getchar();
+
 }
 
 void HiliteMenu()
@@ -267,9 +271,10 @@ short MenuKey(char key)
 	return 0;
 }
 
-void MenuSelect(Point where)
+uint32_t MenuSelect(m(where) where)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+	return where.code;
 }
 
 void AddResMenu(MenuHandle menu, uint16_t ref)	// ref is 4 char id.

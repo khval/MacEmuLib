@@ -60,10 +60,33 @@ typedef struct {
 	int v;
 } Point;
 
+typedef struct
+{
+	APTR		vi;
+	struct Window 	*win;
+	struct Menu	*menu;
+} n(AWC);
+
+typedef struct __mac_window__{
+	void *portRect;
+	bool hilited;
+	short windowKind;
+	bool visible;
+	n(AWC) AmigaWindowContext;
+} *WindowPtr;
+
+typedef struct 
+{
+	Point point;
+	WindowPtr window;
+	uint16_t windowCode;
+	uint32_t code;
+} m(where);
+
 typedef struct 
 {
 	int what;
-	Point where;
+	m(where) where;
 	int when;
 	int message;
 	int modifiers;
@@ -112,20 +135,6 @@ typedef struct {
 } ** CTabHandle;
 
 
-typedef struct
-{
-	APTR		vi;
-	struct Window 	*win;
-	struct Menu	*menu;
-} n(AWC);
-
-typedef struct __mac_window__{
-	void *portRect;
-	bool hilited;
-	short windowKind;
-	bool visible;
-	n(AWC) AmigaWindowContext;
-} *WindowPtr;
 
 #define WindowPeek WindowPtr
 // hilited
@@ -162,7 +171,7 @@ typedef struct
 
 typedef struct 		// only a placeholder.
 {
-	short id;
+	uint16_t id;
 	char *description;
 	char **items;
 	int items_count ;
@@ -382,9 +391,10 @@ void DragWindow();
 void EndUpdate();
 void EraseRect(Rect *r);
 void FillOval( Rect *bounds, uint32_t color );
-int FindWindow(Point where, void *ptr);
+uint16_t FindWindow( m(where) where, WindowPtr *win);
+
 void FlushEvents( uint32_t mask, uint32_t xxxx);
-void *FrontWindow();
+WindowPeek FrontWindow();
 bool GetNextEvent( int opt, EventRecord *er);
 void HideWindow();
 void HiliteMenu();
@@ -403,7 +413,7 @@ void SetPort( WindowPtr ptr);
 void SystemClick();
 void SystemTask();
 void TEInit();
-bool TrackGoAway( void *win ,Point where);
+bool TrackGoAway( WindowPtr win ,m(where) where);
 short _mac_FSOpen( const char *name, int refNum, short *fRef );
 short _mac_FSRead( short fd, long int *size, void *ptr);
 void _mac_FSClose( short fd );
@@ -413,7 +423,7 @@ void FrameOval(Rect *r);
 void CloseDeskAcc( short windowKind );
 
 short MenuKey(char key);
-void MenuSelect(Point where);
+uint32_t MenuSelect(m(where) where);
 MenuHandle NewMenu(short id, const char *description);
 void AppendMenu(MenuHandle menu, const char *description);
 void InsertMenu( MenuHandle menu, short num );

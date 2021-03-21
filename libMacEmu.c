@@ -250,15 +250,23 @@ void DragWindow(){}
 void EndUpdate(){}
 void EraseRect( Rect *r ){}
 
-struct Window *amigaWindow = NULL;
+WindowPtr m(used_window) = NULL;
 
-int FindWindow(Point where, void *ptr)
+uint16_t FindWindow(m(where) where, WindowPtr *win)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	*win = where.window;
+
+	return where.windowCode;
 }
 
 void FlushEvents( uint32_t mask, uint32_t xxxx);
-void *FrontWindow(){}
+
+WindowPeek FrontWindow()
+{
+	return m(used_window);
+}
 
 void HideWindow( WindowPtr win ){}
 void ShowWindow( WindowPtr win ) {}
@@ -379,15 +387,20 @@ void empty_que(struct MsgPort *win_port)
 
 void SetPort( WindowPtr ptr)
 {
-	amigaWindow = ptr -> AmigaWindowContext.win;
+	m(used_window) = ptr ;
 }
 
 bool GetNextEvent( int opt, EventRecord *er)
 {
 	struct IntuiMessage *msg;
-	if ((amigaWindow == NULL)||(er == NULL)) return false;
+	struct Window *win;
+	struct MenuItem *menuitem;
 
-	msg = (struct IntuiMessage *) GetMsg( amigaWindow -> UserPort );
+	if ((m(used_window) == NULL)||(er == NULL)) return false;
+
+	win = m(used_window) -> AmigaWindowContext.win;
+
+	msg = (struct IntuiMessage *) GetMsg( win -> UserPort );
 
 	if (msg)
 	{
@@ -399,23 +412,43 @@ bool GetNextEvent( int opt, EventRecord *er)
 			case IDCMP_ACTIVEWINDOW:
 				er -> what = activateEvt;
 				break;
+
 			case IDCMP_MOUSEMOVE:
 				er -> what = updateEvt;
 				break;
+
 			case IDCMP_MOUSEBUTTONS:
 				er -> what = up ? mouseUp : mouseDown;
+				er -> where.windowCode = inContent;
 				break;
+
 			case IDCMP_RAWKEY:
 				er -> what = up ? keyUp : keyDown;
 				break;
+
 			case IDCMP_EXTENDEDMOUSE:
+
 				break;
 
+			case IDCMP_INTUITICKS:
+				er-> what = updateEvt;
+				break;
+
+			case IDCMP_MENUPICK:
+
+				menuitem = ItemAddress( m(used_window) -> AmigaWindowContext.menu , msg -> Code);
+
+				er -> what = mouseDown;
+				er -> where.windowCode = inMenuBar;
+				er -> where.window = m(used_window);
+				er -> where.code = GTMENUITEM_USERDATA(menuitem);
+				break;
 		}
 
 		ReplyMsg((struct Message *) msg);
 		return true;
 	}
+	else Delay(1);
 
 	return false;
 }
@@ -433,16 +466,19 @@ void TEInit()
 {
 }
 
-bool TrackGoAway( void *win ,Point where )
+bool TrackGoAway( WindowPtr win ,m(where) where )
 {
+	return (win == where.window);
 }
 
 short _mac_FSOpen(const char *mname, int refNum, short *fd)
 {
 	BPTR _fd;
 	void **i;
-
 	char *aname = _mac_to_amiga_path( mname );
+
+	*fd = 0;
+
 	if (aname == NULL) 	return 0;	// failed.
 
 	_fd = FOpen( aname, MODE_READWRITE, 0);
@@ -453,43 +489,67 @@ short _mac_FSOpen(const char *mname, int refNum, short *fd)
 		if (i)
 		{
 			*fd = i - m(fd) -> array +1;	// fd can't be 0.
+
+			printf("*fd %d\n",*fd);
 		}
 	}
 
 	free(aname);
 
-	return 0;	// failed.
+	return *fd ? true : false;
 }
 
 
 short _mac_FSRead( short fd, long int *size, void *ptr)
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+	if (fd < 1) return  0;
+
+	fd--;
+
 	if (m(fd) -> array[fd])
-	{
-		return Read( (BPTR) m(fd)->array[fd-1], ptr, *size );
-	}
+		return Read( (BPTR) m(fd)->array[fd], ptr, *size );
+
 
 	return 0;
 }
 
 void _mac_FSClose(short fd)
 {
-	if (fd)
-	{
-		_vector_array_erase(m(fd),  m(fd) -> array + fd -1 );
-	}
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+	if (fd < 1) return;
+	
+	fd--;
+	_vector_array_erase(m(fd),  m(fd) -> array + fd  );
 }
+
+extern char *asl( const char *pattern );
 
 void SFGetFile( Point pos, const char *name, int a, int b, int c, int d, SFReply *out )
 {
+	char *aname;
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	// This is like macOS ASL requester,
 
-	out -> fName = strdup("ram:test.txt");
-	out -> good = true;
+	aname = asl( "" );
+
+	if (aname == NULL) 
+	{
+		out -> fName = NULL;
+		out -> good = false;
+		return;
+	}
+
+	out -> fName = _amiga_to_mac_path( aname );
+	out -> good = out -> fName ? true : false;
+
+	if (aname) free(aname);
 }
 
 void HLock(Handle ptr)
 {
+
 	// do nothing, this has to do with virtual memory in macos
 }
 
@@ -502,6 +562,8 @@ void FillOval( Rect *r, uint32_t color)
 {
 	int cx,cy,hr,vr;
 	int ar,br,mr;
+	struct RastPort *rp;
+	if (m(used_window) == NULL) return ;
 	
 	hr = (r->bottom - r->top) / 2;
 	vr = (r->right - r->left) / 2;
@@ -509,33 +571,30 @@ void FillOval( Rect *r, uint32_t color)
 	cx = r->left + hr;
 	cy = r->top + vr;
 
-//	SetRastColor( amigaWindow -> RPort, color );
+	rp = m(used_window) -> AmigaWindowContext.win -> RPort;
 
-	SetRPAttrs( amigaWindow -> RPort,
+	SetRPAttrs( rp,
 		RPTAG_APenColor, color, 
 		TAG_END	);
 
 	mr = hr > vr ? hr : vr;
 	for (ar=0;ar<=mr;ar++)
 	{
-//		c*c = a*a+b*b
 		br = sqrt( mr*mr - ar*ar);
 
-		Move( amigaWindow -> RPort, cx+ ar,cy - br );
-		IGraphics -> Draw( amigaWindow -> RPort, cx +ar,cy + br );
+		Move( rp, cx+ ar,cy - br );
+		IGraphics -> Draw( rp, cx +ar,cy + br );
 
-		Move( amigaWindow -> RPort, cx- ar,cy - br );
-		IGraphics -> Draw( amigaWindow -> RPort, cx -ar,cy + br );
+		Move( rp, cx- ar,cy - br );
+		IGraphics -> Draw( rp, cx -ar,cy + br );
 
 	}
-
-//	DrawEllipse( amigaWindow -> RPort, cx,cy,hr,vr);
-//	FloodColor(amigaWindow -> RPort, 1, cx, cy. color);
 }
 
 void FrameOval(Rect *r)
 {
 	int cx,cy,hr,vr;
+	struct RastPort *rp;
 	
 	hr = (r -> bottom - r ->top) / 2;
 	vr = (r -> right - r -> left) / 2;
@@ -543,13 +602,14 @@ void FrameOval(Rect *r)
 	cx = r -> left + hr;
 	cy = r -> top + vr;
 
-	DrawEllipse( amigaWindow -> RPort, cx,cy,hr,vr);
+	rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	DrawEllipse( rp, cx,cy,hr,vr);
 }
 
 void FrameRect(Rect*r)
 {
-       RectFill(amigaWindow -> RPort, r->left, r->top,
-                     r->right, r->bottom);
+	struct RastPort *rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	RectFill( rp, r->left, r->top, r->right, r->bottom);
 }
 
 void 	GetPort( GrafPtr *port )

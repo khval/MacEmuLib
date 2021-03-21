@@ -3,6 +3,7 @@
 p =../
 incdir += -I ./
 
+files += menu.c
 files += pathTranslate.c
 files += vector_array.c
 files += libMacEmu.c

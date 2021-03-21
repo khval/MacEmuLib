@@ -2,7 +2,7 @@
 
 #ifdef __amigaos4__
 // Not real mac, we need some defines.
-#include "MacEmuLib.h"
+#include "libMacEmu.h"
 struct { int dummy; } thePort;
 #endif
 

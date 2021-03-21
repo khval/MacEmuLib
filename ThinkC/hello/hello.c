@@ -1,6 +1,6 @@
 #ifdef __amigaos4__
 // Not real mac, we need some defines.
-#include "MacEmuLib.h"
+#include "libMacEmu.h"
 struct { int dummy; } thePort;
 #endif
 
@@ -56,7 +56,7 @@ int main()
 
 	y=pow(y,2.);
 
-	printf("x= %d y= %.0f ¶x= %.8f \n",x,y,x-y);
+	printf("x= %d y= %.0f ï¿½x= %.8f \n",x,y,x-y);
 	printf(" sizeof(date) = %d\n", (short) sizeof(date));
 
 	SFGetFile(	where,"Quoi ?",	0,-1,	0,0,	&tr);

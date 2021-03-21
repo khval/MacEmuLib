@@ -1,6 +1,6 @@
 /*****
 *	windowUtils.c 
-*	Copyright © 1991 Symantec Corporation. All rights reserved. 
+*	Copyright ï¿½ 1991 Symantec Corporation. All rights reserved. 
 *
 *		Utility functions for the LearnOOP tutorial. These routines 
 *		set up the console and drawing windows and provide a 
@@ -13,7 +13,7 @@
 
 #ifdef __amigaos4__
 // Not real mac, we need some defines.
-#include "MacEmuLib.h"
+#include "libMacEmu.h"
 #endif
 
 #include <stdio.h>

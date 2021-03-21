@@ -34,6 +34,10 @@
 #include <stdio.h>
 #include <stdarg.h>
 
+#define n(name) __native__ ## name
+#define l(name) __libMacEmu__ ## name
+#define m(name) __mac__ ## name
+
 typedef char *GrafPtr;
 
 typedef struct
@@ -107,12 +111,20 @@ typedef struct {
 	int *ctTable;
 } ** CTabHandle;
 
+
+typedef struct
+{
+	APTR		vi;
+	struct Window 	*win;
+	struct Menu	*menu;
+} n(AWC);
+
 typedef struct __mac_window__{
 	void *portRect;
 	bool hilited;
 	short windowKind;
 	bool visible;
-	struct Window *AmigaWindow;
+	n(AWC) AmigaWindowContext;
 } *WindowPtr;
 
 #define WindowPeek WindowPtr
@@ -147,9 +159,23 @@ typedef struct
 	int parID;
 } FSSpec;
 
-typedef void * MenuHandle;
+
+typedef struct 		// only a placeholder.
+{
+	short id;
+	char *description;
+	char **items;
+	int items_count ;
+	int items_allocated;
+}__tmp_mac_menu__;
+
+
+typedef __tmp_mac_menu__ *MenuHandle;
+
 typedef void * RgnHandle;
-typedef void * CursHandle;
+
+typedef void * CursPtr;
+typedef CursPtr * CursHandle;
 
 typedef struct {
 	PixMapHandle gdPMap;
@@ -388,16 +414,16 @@ void CloseDeskAcc( short windowKind );
 
 short MenuKey(char key);
 void MenuSelect(Point where);
-void *NewMenu(short id, const char *description);
-void AppendMenu(void *, const char *description);
-void InsertMenu( void *menu, short num );
+MenuHandle NewMenu(short id, const char *description);
+void AppendMenu(MenuHandle menu, const char *description);
+void InsertMenu( MenuHandle menu, short num );
 void DrawMenuBar();
-void AddResMenu(void *menu, uint16_t ref);
-void CheckItem(void *menu, int width, bool enabled);
-void EnableItem(void *menu, short item);
-void DisableItem(void * menu, short item);
+void AddResMenu( MenuHandle menu, uint16_t ref);
+void CheckItem(MenuHandle menu, int width, bool enabled);
+void EnableItem(MenuHandle menu, short item);
+void DisableItem(MenuHandle menu, short item);
 void GetPort( GrafPtr *port );
-void GetItem( void *menu, int Item,const char *name);
+void GetItem( MenuHandle menu, int Item,const char *name);
 void OpenDeskAcc(GrafPtr *port);
 void ExitToShell();
 bool SystemEdit( int item );

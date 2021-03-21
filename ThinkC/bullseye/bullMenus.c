@@ -1,7 +1,7 @@
 
 #ifdef __amigaos4__
 // Not real mac, we need some defines.
-#include "MacEmuLib.h"
+#include "libMacEmu.h"
 struct { int dummy; } thePort;
 #endif
 
@@ -34,7 +34,7 @@ void SetUpMenus(void)
 	InsertMenu(editionMenu = NewMenu(editionID, "Edition"), 0);
 	InsertMenu(widthMenu = NewMenu(widthID, "Epaisseur"), 0);
 	DrawMenuBar();	
-	AppendMenu(appleMenu, "A propos de bullseyeÉ;(-");
+	AppendMenu(appleMenu, "A propos de bullseyeï¿½;(-");
 	AddResMenu(appleMenu, 'DRVR');
 	AppendMenu(fichierMenu, "Ouvrir/O;Fermer/W;(-;Quitter/Q");
 	AppendMenu(editionMenu, "Annuler/Z;(-;Couper/X;Copier/C;Coller/V;Effacer");

@@ -1,6 +1,6 @@
 /*****
 * LearnOOP.c 
-* Copyright © 1991 Symantec Corporation. All rights reserved. 
+* Copyright ï¿½ 1991 Symantec Corporation. All rights reserved. 
 *
 *		The main file of the LearnOOP tutorial. 
 *
@@ -8,7 +8,7 @@
 
 #ifdef __amigaos4__
 // Not real mac, we need some defines.
-#include "MacEmuLib.h"
+#include "libMacEmu.h"
 #endif
 
 #include <stdio.h>

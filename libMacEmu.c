@@ -1,7 +1,8 @@
 
-#include "MacEmuLib.h"
+#include "libMacEmu.h"
 #include "vector_array.h"
 #include "pathTranslate.h"
+#include <proto/gadtools.h>
 
 PixMap screenBits;
 
@@ -25,16 +26,13 @@ struct Library			*DiskfontBase = NULL;
 struct DiskfontIFace		*IDiskfont = NULL;
 
 struct Library			*GadToolsBase = NULL;
-struct DiskfontIFace		*IGadTools = NULL;
+struct GadToolsIFace	*IGadTools = NULL;
 
 struct KeymapIFace		*IKeymap = NULL;
 struct Library			*KeymapBase = NULL;
 
 struct Locale			*_locale = NULL;
 ULONG				*codeset_page = NULL;
-
-struct Library 			* RetroModeBase = NULL;
-struct RetroModeIFace 	*IRetroMode = NULL;
 
 struct WorkbenchIFace	*IWorkbench = NULL;
 struct Library			*WorkbenchBase = NULL;
@@ -51,6 +49,10 @@ struct GraphicsIFace		*IGraphics = NULL;
 struct Library			*LayersBase = NULL;
 struct LayersIFace		*ILayers = NULL;
 
+// I expected to run into name conflict, macros is like namespace.
+
+#define n(name) __native__ ## name
+#define l(name) __libMacEmu__ ## name
 #define m(name) __mac__ ## name
 
 // we work with arrays, just makes it easy to cleanup, (looks like MacOS program suck, at this.)
@@ -58,6 +60,39 @@ struct LayersIFace		*ILayers = NULL;
 struct _vector_array * m(fd) = NULL;
 struct _vector_array * m(windows) = NULL;
 
+extern struct NewMenu *n(menu) ;
+extern int m(menus_items_count) ;
+
+
+struct NewMenu testMenu[] =
+{
+	{ NM_TITLE, "Project",	0,0,0,0 },
+	{ NM_ITEM, "Quit",	"Q",0,0,0 },
+	{ NM_END, NULL,	0,0,0,0 },
+};
+
+void dump_amiga_menu( struct NewMenu *m)
+{
+	int n;
+
+	if (m[0]. nm_Type == NM_END) return;
+
+	for (n=0;;n++)
+	{
+		printf("nm_Type: %d , label: %s\n",  
+				m[n] . nm_Type, 
+
+				m[n] . nm_Type ? 
+					(m[n] . nm_Label ? m[n]. nm_Label  : "NULL") : "END",
+
+				m[n]. nm_Type ? 
+					(m[n] . nm_CommKey ? m[n] . nm_CommKey  : "NULL") : "END"
+
+			);
+
+		if (m[n]. nm_Type == NM_END) break;
+	}
+}
 
 void mac_fd_destructor (void *item)
 {
@@ -76,10 +111,13 @@ void macWindow_destructor(void *item)
 {
 	WindowPtr macWindow = (WindowPtr) item;
 
-	if (macWindow->AmigaWindow)
+	n(attach_menu_to_window)((void *) macWindow );
+
+	if (macWindow->AmigaWindowContext.win)
 	{
-		CloseWindow(macWindow->AmigaWindow);
+		CloseWindow(macWindow->AmigaWindowContext.win);
 	}
+
 	free(macWindow);
 }
 
@@ -147,6 +185,9 @@ static void cleanup()
 	if (DiskfontBase) CloseLibrary(DiskfontBase); DiskfontBase = 0;
 	if (IDiskfont) DropInterface((struct Interface*) IDiskfont); IDiskfont = 0;
 
+	if (GadToolsBase) CloseLibrary(GadToolsBase); GadToolsBase = 0;
+	if (IGadTools) DropInterface((struct Interface*) IGadTools); IGadTools = 0;
+
 	if (IntuitionBase) CloseLibrary(IntuitionBase); IntuitionBase = 0;
 	if (IIntuition) DropInterface((struct Interface*) IIntuition); IIntuition = 0;
 
@@ -213,6 +254,7 @@ struct Window *amigaWindow = NULL;
 
 int FindWindow(Point where, void *ptr)
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void FlushEvents( uint32_t mask, uint32_t xxxx);
@@ -220,13 +262,31 @@ void *FrontWindow(){}
 
 void HideWindow( WindowPtr win ){}
 void ShowWindow( WindowPtr win ) {}
-void HiliteMenu(){}
-void InitCursor(){}
-void InitDialogs(){}
-void InitFonts(){}
-void InitGraf(){}
-void InitMenus(){}
-void InitWindows(){}
+
+void InitCursor()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void InitDialogs()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void InitFonts()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void InitGraf()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void InitWindows()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
 
 void InsetRect( Rect *r, int w,int h )
 {
@@ -238,15 +298,6 @@ void InsetRect( Rect *r, int w,int h )
 
 void InvalRect(){}
 void MaxApplZone(){}
-
-short MenuKey(char key) 
-{
-	return 0;
-}
-
-void MenuSelect(Point where)
-{
-}
 
 #define IDCMP_COMMON IDCMP_MOUSEBUTTONS | IDCMP_INACTIVEWINDOW | IDCMP_ACTIVEWINDOW  | \
 	IDCMP_CHANGEWINDOW | IDCMP_MOUSEMOVE | IDCMP_REFRESHWINDOW | IDCMP_RAWKEY | \
@@ -264,7 +315,7 @@ WindowPtr NewWindow( int value1, Rect *bounds,const char *title, bool opt1, uint
 		window_width = bounds->right - bounds->left;
 		window_height = bounds->bottom - bounds->top;
 
-		macWindow -> AmigaWindow  = OpenWindowTags( NULL,
+		macWindow -> AmigaWindowContext.win  = OpenWindowTags( NULL,
 //				WA_PubScreen,       (ULONG) fullscreen_screen,
 				WA_Left,			bounds->left,
 				WA_Top,			bounds->top,
@@ -286,18 +337,26 @@ WindowPtr NewWindow( int value1, Rect *bounds,const char *title, bool opt1, uint
 				WA_NewLookMenus,	TRUE,
 				WA_Title,			NULL,
 				WA_Activate,		TRUE,
-				WA_Flags,			WFLG_RMBTRAP| WFLG_REPORTMOUSE,
+				WA_Flags,			WFLG_REPORTMOUSE,
 				WA_IDCMP,		IDCMP_COMMON,
 			TAG_DONE);
 		
-		if (macWindow -> AmigaWindow == NULL)
+		if (macWindow -> AmigaWindowContext.win == NULL)
 		{
 			free(macWindow);
 			macWindow = NULL;
 		}
 	}
 
-	if (_vector_array_push_back( m(windows), macWindow ) == false)
+	if (_vector_array_push_back( m(windows), macWindow ))
+	{
+		if (n(menu))
+		{
+			dump_amiga_menu( n(menu) );
+			n(attach_menu_to_window)( (void *) macWindow);
+		}
+	}
+	else
 	{
 		macWindow_destructor(macWindow);
 		macWindow = NULL;
@@ -320,7 +379,7 @@ void empty_que(struct MsgPort *win_port)
 
 void SetPort( WindowPtr ptr)
 {
-	amigaWindow = ptr -> AmigaWindow;
+	amigaWindow = ptr -> AmigaWindowContext.win;
 }
 
 bool GetNextEvent( int opt, EventRecord *er)
@@ -442,6 +501,7 @@ void HUnlock(Handle ptr)
 void FillOval( Rect *r, uint32_t color)
 {
 	int cx,cy,hr,vr;
+	int ar,br,mr;
 	
 	hr = (r->bottom - r->top) / 2;
 	vr = (r->right - r->left) / 2;
@@ -455,8 +515,22 @@ void FillOval( Rect *r, uint32_t color)
 		RPTAG_APenColor, color, 
 		TAG_END	);
 
-	DrawEllipse( amigaWindow -> RPort, cx,cy,hr,vr);
-	Flood(amigaWindow -> RPort, 1, cx, cy);
+	mr = hr > vr ? hr : vr;
+	for (ar=0;ar<=mr;ar++)
+	{
+//		c*c = a*a+b*b
+		br = sqrt( mr*mr - ar*ar);
+
+		Move( amigaWindow -> RPort, cx+ ar,cy - br );
+		IGraphics -> Draw( amigaWindow -> RPort, cx +ar,cy + br );
+
+		Move( amigaWindow -> RPort, cx- ar,cy - br );
+		IGraphics -> Draw( amigaWindow -> RPort, cx -ar,cy + br );
+
+	}
+
+//	DrawEllipse( amigaWindow -> RPort, cx,cy,hr,vr);
+//	FloodColor(amigaWindow -> RPort, 1, cx, cy. color);
 }
 
 void FrameOval(Rect *r)
@@ -478,45 +552,7 @@ void FrameRect(Rect*r)
                      r->right, r->bottom);
 }
 
-void *NewMenu(short id, const char *description)
-{
-	return 0;
-}
-
-void AppendMenu(void *menu, const char *description)
-{
-
-}
-
-void InsertMenu( void *menu, short num )
-{
-}
-
-void DrawMenuBar()
-{
-}
-
-void AddResMenu(void *menu, uint16_t ref)
-{
-}
-
-void CheckItem(void *menu, int width, bool enabled)
-{
-}
-
-void	EnableItem(void *menu, short item)
-{
-}
-
-void 	DisableItem(void * menu, short item)
-{
-}
-
 void 	GetPort( GrafPtr *port )
-{
-}
-
-void GetItem( void *menu, int Item,const char *name)
 {
 }
 
@@ -530,6 +566,8 @@ void CloseDeskAcc( short windowKind )
 
 void ExitToShell()
 {
+	CloseMacEMU();
+	exit(0);
 }
 
 bool SystemEdit( int item )

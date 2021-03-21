@@ -121,8 +121,11 @@ int main()
 	if (OpenMacEMU() == false) return -30;
 
 	InitMacintosh();
-	SetUpMenus();
-	SetUpWindow();
+
+	// interesting menus, must be global to the program, because it comes before Window setup
+
+	SetUpMenus();	
+ 	SetUpWindow();
 
 #ifdef __amigaos4__
 	while (HandleEvent()) { Delay(1); }

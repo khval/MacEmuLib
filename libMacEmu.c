@@ -71,6 +71,7 @@ struct NewMenu testMenu[] =
 	{ NM_END, NULL,	0,0,0,0 },
 };
 
+/*
 void dump_amiga_menu( struct NewMenu *m)
 {
 	int n;
@@ -93,6 +94,7 @@ void dump_amiga_menu( struct NewMenu *m)
 		if (m[n]. nm_Type == NM_END) break;
 	}
 }
+*/
 
 void mac_fd_destructor (void *item)
 {
@@ -311,7 +313,7 @@ void MaxApplZone(){}
 	IDCMP_CHANGEWINDOW | IDCMP_MOUSEMOVE | IDCMP_REFRESHWINDOW | IDCMP_RAWKEY | \
 	IDCMP_EXTENDEDMOUSE | IDCMP_CLOSEWINDOW | IDCMP_NEWSIZE | IDCMP_INTUITICKS | IDCMP_MENUPICK | IDCMP_GADGETUP
 
-WindowPtr NewWindow( int value1, Rect *bounds,const char *title, bool opt1, uint32_t opt2, WindowPtr cloneFrom, bool opt3, int value2)
+WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon)
 {
 	int window_width, window_height;
 	WindowPtr macWindow;
@@ -336,14 +338,14 @@ WindowPtr NewWindow( int value1, Rect *bounds,const char *title, bool opt1, uint
 				WA_MaxHeight,       ~0,  
 
 				WA_SimpleRefresh,	TRUE,
-				WA_CloseGadget,	FALSE,
+				WA_CloseGadget,	goAwayFlag ? TRUE : FALSE,
 				WA_DepthGadget,	FALSE,
 				WA_DragBar,		FALSE ,
 				WA_Borderless,	TRUE ,
 				WA_SizeGadget,	FALSE ,
 				WA_SizeBBottom,	FALSE ,
 				WA_NewLookMenus,	TRUE,
-				WA_Title,			NULL,
+				WA_Title,			title,
 				WA_Activate,		TRUE,
 				WA_Flags,			WFLG_REPORTMOUSE,
 				WA_IDCMP,		IDCMP_COMMON,
@@ -360,7 +362,7 @@ WindowPtr NewWindow( int value1, Rect *bounds,const char *title, bool opt1, uint
 	{
 		if (n(menu))
 		{
-			dump_amiga_menu( n(menu) );
+//			dump_amiga_menu( n(menu) );
 			n(attach_menu_to_window)( (void *) macWindow);
 		}
 	}
@@ -407,8 +409,15 @@ bool GetNextEvent( int opt, EventRecord *er)
 		ULONG cl = msg->Class;
 		bool up = msg -> Code & IECODE_UP_PREFIX;
 
+		er -> where.window = m(used_window);
+
 		switch (cl) 
 		{
+			case IDCMP_CLOSEWINDOW:
+				er -> what = mouseDown;
+				er -> where.windowCode = inGoAway;
+				break;
+
 			case IDCMP_ACTIVEWINDOW:
 				er -> what = activateEvt;
 				break;
@@ -437,11 +446,9 @@ bool GetNextEvent( int opt, EventRecord *er)
 			case IDCMP_MENUPICK:
 
 				menuitem = ItemAddress( m(used_window) -> AmigaWindowContext.menu , msg -> Code);
-
 				er -> what = mouseDown;
 				er -> where.windowCode = inMenuBar;
-				er -> where.window = m(used_window);
-				er -> where.code = GTMENUITEM_USERDATA(menuitem);
+				er -> where.code = (uint32_t) GTMENUITEM_USERDATA(menuitem);
 				break;
 		}
 
@@ -563,15 +570,19 @@ void FillOval( Rect *r, uint32_t color)
 	int cx,cy,hr,vr;
 	int ar,br,mr;
 	struct RastPort *rp;
+	struct Window *win;
 	if (m(used_window) == NULL) return ;
 	
 	hr = (r->bottom - r->top) / 2;
 	vr = (r->right - r->left) / 2;
 
-	cx = r->left + hr;
-	cy = r->top + vr;
+	win  = m(used_window) -> AmigaWindowContext.win;
+	rp =  win -> RPort;
 
-	rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	cx = r->left + hr + win -> BorderLeft;
+	cy = r->top + vr + win -> BorderTop;
+
+
 
 	SetRPAttrs( rp,
 		RPTAG_APenColor, color, 
@@ -595,6 +606,7 @@ void FrameOval(Rect *r)
 {
 	int cx,cy,hr,vr;
 	struct RastPort *rp;
+	struct Window *win;
 	
 	hr = (r -> bottom - r ->top) / 2;
 	vr = (r -> right - r -> left) / 2;
@@ -602,8 +614,10 @@ void FrameOval(Rect *r)
 	cx = r -> left + hr;
 	cy = r -> top + vr;
 
-	rp = m(used_window) -> AmigaWindowContext.win -> RPort;
-	DrawEllipse( rp, cx,cy,hr,vr);
+	win  = m(used_window) -> AmigaWindowContext.win;
+	rp =  win -> RPort;
+
+	DrawEllipse( rp, cx + win -> BorderLeft,cy + win -> BorderTop,hr,vr);
 }
 
 void FrameRect(Rect*r)

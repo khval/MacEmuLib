@@ -168,12 +168,18 @@ typedef struct
 	int parID;
 } FSSpec;
 
+typedef struct
+{
+	char *name;
+	char *key;
+	int flags;
+}_tmp_mac_menu_item_;
 
 typedef struct 		// only a placeholder.
 {
 	uint16_t id;
 	char *description;
-	char **items;
+	_tmp_mac_menu_item_ *items;
 	int items_count ;
 	int items_allocated;
 }__tmp_mac_menu__;
@@ -407,7 +413,7 @@ void InitWindows();
 void InsetRect( Rect *r, int w,int h );
 void InvalRect();
 void MaxApplZone();
-WindowPtr NewWindow( int, Rect *bounds,const char *title, bool , uint32_t opt1, WindowPtr cloneFrom, bool opt2, int value);
+WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon);
 void SelectWindow();
 void SetPort( WindowPtr ptr);
 void SystemClick();

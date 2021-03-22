@@ -90,9 +90,9 @@ void m(set_menus_items)(void *item)		// We need the size, so we can make menu ta
 	for (nn = 0;nn < menu -> items_count ; nn++)
 	{
 		n(menu)[n].nm_Type = NM_ITEM;
-		n(menu)[n].nm_Label = (STRPTR) menu -> items[nn];
-   	 	n(menu)[n].nm_CommKey = NULL;
-   	 	n(menu)[n].nm_Flags = flag;        
+		n(menu)[n].nm_Label = (STRPTR) menu -> items[nn].name;
+   	 	n(menu)[n].nm_CommKey = menu -> items[nn].key;
+   	 	n(menu)[n].nm_Flags = menu -> items[nn].flags;        
    	 	n(menu)[n].nm_MutualExclude = 0 ;
 	    	n(menu)[n].nm_UserData = menuID( menu -> id ,nn+1 );
 
@@ -138,14 +138,6 @@ void n(create_menu)()
 	n(free_menu)();
 	n(__create_menu)();
 	n(attach_menu)();
-
-	printf("menu status: \n");
-	{
-		printf("menus_items_count: %d\n", m(menus_items_count) );
-		printf("create_menu_counter: %d\n",n(create_menu_counter) );
-	}
-	getchar();
-
 }
 
 void HiliteMenu()
@@ -168,9 +160,18 @@ MenuHandle NewMenu(short id, const char *description)
 	{
 		menu -> id = id;
 		menu -> description = strdup(description);
-		menu -> items = (char **) malloc(sizeof(void *) * 100 ); // just a array of strings this might change.
+		menu -> items = (_tmp_mac_menu_item_ *) malloc(sizeof(_tmp_mac_menu_item_) * 100 ); // just a array of strings this might change.
 	}
 	return menu;
+}
+
+void free__tmp_mac_menu_item_( _tmp_mac_menu_item_  *item)
+{
+	if (item -> name)
+	{
+		if (item -> name != NM_BARLABEL) free(item -> name);
+	}
+	if (item -> key) free(item -> key);
 }
 
 void dispose_menu (void *item)
@@ -184,13 +185,27 @@ void dispose_menu (void *item)
 			int n = 0;
 			for (n=0; n<menu -> items_count;n++ )
 			{
-				free( menu -> items[n] );
+				free__tmp_mac_menu_item_( &menu -> items[n] );
 			}
 
 			free (menu -> items);
 		}
 		free(menu);
 	}
+}
+
+void set__tmp_mac_menu_item_(_tmp_mac_menu_item_ *item ,  char *name,  char *key)
+{
+	item -> flags = 0;
+
+	if (strcmp(name,"(-") == 0)
+	{
+		free(name);
+		name = NM_BARLABEL;
+	}
+
+	item -> name = name;
+	item -> key = key;
 }
 
 void __append_menu_item(MenuHandle menu, const char *start_ptr, const char *key_ptr, const char *end_ptr)
@@ -201,13 +216,18 @@ void __append_menu_item(MenuHandle menu, const char *start_ptr, const char *key_
 	{
 		if (key_ptr)
 		{
-			menu -> items[ menu -> items_count ] = 
-				strndup(start_ptr, (int) (key_ptr - start_ptr - 1));
+			set__tmp_mac_menu_item_(
+				&menu -> items[ menu -> items_count ],
+				strndup( start_ptr, (int) (key_ptr - start_ptr - 1) ),
+				strndup( key_ptr, (int) (end_ptr - key_ptr) )
+				);
 		}	
 		else
 		{
-			menu -> items[ menu -> items_count ] = 
-				strndup(start_ptr, (int) (end_ptr - start_ptr));
+			set__tmp_mac_menu_item_(
+				&menu -> items[ menu -> items_count ],
+				strndup(start_ptr, (int) (end_ptr - start_ptr)),
+				NULL);
 		}
 
 		menu -> items_count ++;
@@ -290,11 +310,15 @@ void CheckItem(MenuHandle menu, int width, bool enabled)
 void	EnableItem(MenuHandle menu, short item)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if (item) menu -> items[item-1].flags &= ~NM_ITEMDISABLED;
 }
 
 void 	DisableItem(MenuHandle menu, short item)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if (item) menu -> items[item-1].flags |= NM_ITEMDISABLED;
 }
 
 void GetItem( MenuHandle menu, int Item,const char *name)

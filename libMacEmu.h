@@ -38,6 +38,8 @@
 #define l(name) __libMacEmu__ ## name
 #define m(name) __mac__ ## name
 
+extern bool n(refresh_menu) ;
+
 typedef char *GrafPtr;
 
 typedef struct

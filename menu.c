@@ -310,6 +310,7 @@ void	EnableItem(MenuHandle menu, short item)
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if (item) menu -> items[item-1].flags &= ~NM_ITEMDISABLED;
+	n(refresh_menu) = true;
 }
 
 void 	DisableItem(MenuHandle menu, short item)
@@ -317,6 +318,7 @@ void 	DisableItem(MenuHandle menu, short item)
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if (item) menu -> items[item-1].flags |= NM_ITEMDISABLED;
+	n(refresh_menu) = true;
 }
 
 void GetItem( MenuHandle menu, int Item,const char *name)

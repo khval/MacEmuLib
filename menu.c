@@ -19,16 +19,34 @@ struct _vector_array *m(menus) = NULL ;
 
 void n(attach_menu_to_window)(void *item)
 {
+
+	if (item == NULL)
+	{
+		printf("critical error, no item found\n...");
+		getchar();
+		return ;
+	}
+
 	n(AWC) *awc = &((WindowPtr) (item))->AmigaWindowContext;
 
-	awc -> vi= (struct VisualInfo *) GetVisualInfoA( awc -> win -> WScreen,  NULL);
-	awc -> menu = CreateMenus( n(menu) );
-
-	if ((awc -> vi) && (awc-> menu))
+	if (awc)
 	{
-		if ( awc -> vi ) LayoutMenus( awc -> menu, awc -> vi, GTMN_NewLookMenus, TRUE, TAG_END );
+
+		if (awc -> win == NULL) printf("wtf... amiga window missing\n");
+
+		awc -> vi= (struct VisualInfo *) GetVisualInfoA( awc -> win -> WScreen,  NULL);
+		awc -> menu = CreateMenus( n(menu) );
+
+		if ((awc -> vi) && (awc-> menu))
+		{
+			if ( awc -> vi ) LayoutMenus( awc -> menu, awc -> vi, GTMN_NewLookMenus, TRUE, TAG_END );
+		}
+		SetMenuStrip(awc -> win, awc -> menu );
 	}
-	SetMenuStrip(awc -> win, awc -> menu );
+	else
+	{
+		printf("no awc unexpected\n");
+	}
 }
 
 void n(attach_menu)()
@@ -42,13 +60,22 @@ void n(detach_menu_from_window) (void *item)
 {
 	n(AWC) *awc = &((WindowPtr) (item)) -> AmigaWindowContext;
 
-	if (awc -> win) ClearMenuStrip(awc -> win);
-	if (awc -> menu) FreeMenus(awc-> menu);
-	if (awc -> vi) FreeVisualInfo(awc -> vi);
+	if (awc)
+	{
+		if (awc -> menu)
+		{
+			if (awc -> win) ClearMenuStrip(awc -> win);
+			 FreeMenus(awc-> menu);
+		}
 
-	awc -> win = NULL;
-	awc -> menu = NULL;
-	awc -> vi =  NULL;
+		if (awc -> vi) FreeVisualInfo(awc -> vi);
+		awc -> menu = NULL;
+		awc -> vi =  NULL;
+	}
+	else
+	{
+		printf("no awc unexpected\n");
+	}
 }
 
 void n(detach_menu)()

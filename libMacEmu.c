@@ -312,7 +312,9 @@ WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool v
 	{
 		window_width = bounds->right - bounds->left;
 		window_height = bounds->bottom - bounds->top;
-
+	
+		macWindow -> AmigaWindowContext.vi = 0;
+		macWindow -> AmigaWindowContext.menu = NULL;
 		macWindow -> AmigaWindowContext.win  = OpenWindowTags( NULL,
 //				WA_PubScreen,       (ULONG) fullscreen_screen,
 				WA_Left,			bounds->left,

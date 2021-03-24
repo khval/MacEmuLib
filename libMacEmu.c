@@ -80,7 +80,7 @@ void macWindow_destructor(void *item)
 {
 	WindowPtr macWindow = (WindowPtr) item;
 
-	n(attach_menu_to_window)((void *) macWindow );
+	n(detach_menu_from_window)((void *) macWindow );
 
 	if (macWindow->AmigaWindowContext.win)
 	{

@@ -111,7 +111,7 @@ void m(get_menus_items_count)(void *item)		// We need the size, so we can make m
 	m(menus_items_count) += menu -> items_count + 1;	// title and items.
 }
 
-void n(__create_menu)()
+void n(create_new_menu)()
 {
 	m(menus_items_count) = 0;
 	_vector_array_for_each( m(menus) , m(get_menus_items_count) );
@@ -134,7 +134,7 @@ void n(create_menu)()
 
 	n(detach_menu)();
 	n(free_menu)();
-	n(__create_menu)();
+	n(create_new_menu)();
 	n(attach_menu)();
 }
 

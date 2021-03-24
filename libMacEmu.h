@@ -244,6 +244,7 @@ enum
 
 enum	// event what
 {
+	none_event,
 	mouseUp = 1,
 	mouseDown,
 	keyUp,

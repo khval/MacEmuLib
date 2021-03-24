@@ -386,70 +386,135 @@ void SetPort( WindowPtr ptr)
 	m(used_window) = ptr ;
 }
 
-bool GetNextEvent( int opt, EventRecord *er)
+EventRecord n(io)[1000];
+int n(io_pos) = 0;
+
+void n(_get_events_and_convert)(n(AWC) *awc)
 {
 	struct IntuiMessage *msg;
-	struct Window *win;
 	struct MenuItem *menuitem;
+	EventRecord *er;
 
-	if ((m(used_window) == NULL)||(er == NULL)) return false;
-
-	win = m(used_window) -> AmigaWindowContext.win;
-
-	msg = (struct IntuiMessage *) GetMsg( win -> UserPort );
-
-	if (msg)
+	while (msg = (struct IntuiMessage *) GetMsg( awc -> win -> UserPort ))
 	{
 		ULONG cl = msg->Class;
 		bool up = msg -> Code & IECODE_UP_PREFIX;
 
-		er -> where.window = m(used_window);
+		er = &n(io)[n(io_pos) % 1000];
 
-		switch (cl) 
+
+		if (er)
 		{
-			case IDCMP_CLOSEWINDOW:
-				er -> what = mouseDown;
-				er -> where.windowCode = inGoAway;
-				break;
+			er -> what = none_event;
+			er -> where.window = m(used_window);
 
-			case IDCMP_ACTIVEWINDOW:
-				er -> what = activateEvt;
-				break;
+			switch (cl) 
+			{
+				case IDCMP_CLOSEWINDOW:
 
-			case IDCMP_MOUSEMOVE:
-				er -> what = updateEvt;
-				break;
+					er -> what = mouseDown;
+					er -> where.windowCode = inGoAway;
+					break;
 
-			case IDCMP_MOUSEBUTTONS:
-				er -> what = up ? mouseUp : mouseDown;
-				er -> where.windowCode = inContent;
-				break;
+				case IDCMP_ACTIVEWINDOW:
+					er -> what = activateEvt;
+					break;
 
-			case IDCMP_RAWKEY:
-				er -> what = up ? keyUp : keyDown;
-				break;
 
-			case IDCMP_EXTENDEDMOUSE:
+				case IDCMP_MOUSEMOVE:
+//					er -> what = updateEvt;
+					break;
 
-				break;
+				case IDCMP_MOUSEBUTTONS:
 
-			case IDCMP_INTUITICKS:
-				er-> what = updateEvt;
-				break;
+					er -> what = up ? mouseUp : mouseDown;
+					er -> where.windowCode = inContent;
+					er -> where.point.x = msg -> MouseX;
+					er -> where.point.y = msg -> MouseY;
+					break;
 
-			case IDCMP_MENUPICK:
+				case IDCMP_RAWKEY:
 
-				menuitem = ItemAddress( m(used_window) -> AmigaWindowContext.menu , msg -> Code);
-				er -> what = mouseDown;
-				er -> where.windowCode = inMenuBar;
-				er -> where.code = (uint32_t) GTMENUITEM_USERDATA(menuitem);
-				break;
+					er -> what = up ? keyUp : keyDown;
+					break;
+
+				case IDCMP_EXTENDEDMOUSE:
+					break;
+
+				case IDCMP_INTUITICKS:
+					er-> what = updateEvt;
+					break;
+
+				case IDCMP_MENUPICK:
+
+					{
+						int menuNumber = msg -> Code;
+						int menuNum,itemNum;
+
+						if (awc -> menu)
+						{
+							while (menuNumber != MENUNULL)
+							{
+								menuNum = MENUNUM(menuNumber);
+								itemNum = ITEMNUM(menuNumber);
+
+								menuitem = ItemAddress( awc -> menu , msg -> Code);
+
+								printf("menu item: %08x --- %d ,%d \n",menuitem,menuNum,itemNum);
+
+								er -> what = mouseDown;
+								er -> where.windowCode = inMenuBar;
+								er -> where.code = (uint32_t) GTMENUITEM_USERDATA(menuitem);
+
+								_vector_array_push_back( m(mac_event_queue), (void  *) er) ;
+								n(io_pos) ++;
+
+								menuNumber = menuitem -> NextSelect;
+							}
+
+							er -> what != none_event	;		// no more menu events.
+						}
+					}
+					break;
+			}
+
+			if (er -> what != none_event)	// not a valid event..
+			{
+				_vector_array_push_back( m(mac_event_queue), (void  *) er) ;
+				n(io_pos) ++;
+			}
 		}
 
 		ReplyMsg((struct Message *) msg);
+	}
+}
+
+bool n(refresh_menu) = false;
+extern void n(create_menu)();
+
+bool GetNextEvent( int opt, EventRecord *er)
+{
+	struct Window *win;
+	if ((m(used_window) == NULL)||(er == NULL)) return false;
+		
+	n(_get_events_and_convert)( &m(used_window) -> AmigaWindowContext );
+
+	if (m(mac_event_queue) -> used)
+	{
+		*er = *((EventRecord *) m(mac_event_queue) -> array[0]);	// make copy of first,
+		_vector_array_erase(m(mac_event_queue), m(mac_event_queue) -> array );	// erase the first.
 		return true;
 	}
-	else Delay(1);
+	else 
+	{
+		if (n(refresh_menu))
+		{
+			n(create_menu)();
+			n(refresh_menu) = false;
+		}
+
+		Delay(1);
+	}
 
 	return false;
 }

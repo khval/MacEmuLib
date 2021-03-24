@@ -443,7 +443,7 @@ void CheckItem(MenuHandle menu, int width, bool enabled);
 void EnableItem(MenuHandle menu, short item);
 void DisableItem(MenuHandle menu, short item);
 
-void GetItem( MenuHandle menu, int Item,const char *name);
+void GetItem( MenuHandle menu, int Item, char *name);
 void OpenDeskAcc(GrafPtr *port);
 void ExitToShell();
 bool SystemEdit( int item );

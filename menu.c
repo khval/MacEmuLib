@@ -321,7 +321,10 @@ void 	DisableItem(MenuHandle menu, short item)
 	n(refresh_menu) = true;
 }
 
-void GetItem( MenuHandle menu, int Item,const char *name)
+void GetItem( MenuHandle menu, int Item, char *name)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	sprintf(name,"%s","helloWorld");
 }
+

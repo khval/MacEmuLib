@@ -417,7 +417,8 @@ void InvalRect();
 void MaxApplZone();
 WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon);
 void SelectWindow();
-void SetPort( WindowPtr ptr);
+void GetPort( WindowPtr *ptr );
+void SetPort( WindowPtr ptr );
 void SystemClick();
 void SystemTask();
 void TEInit();
@@ -440,7 +441,7 @@ void AddResMenu( MenuHandle menu, uint16_t ref);
 void CheckItem(MenuHandle menu, int width, bool enabled);
 void EnableItem(MenuHandle menu, short item);
 void DisableItem(MenuHandle menu, short item);
-void GetPort( GrafPtr *port );
+
 void GetItem( MenuHandle menu, int Item,const char *name);
 void OpenDeskAcc(GrafPtr *port);
 void ExitToShell();

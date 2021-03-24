@@ -355,6 +355,12 @@ void empty_que(struct MsgPort *win_port)
 	}
 }
 
+
+void 	GetPort( WindowPtr *port )
+{
+	*port = m(used_window);
+}
+
 void SetPort( WindowPtr ptr)
 {
 	m(used_window) = ptr ;
@@ -594,8 +600,16 @@ void FrameRect(Rect*r)
 	RectFill( rp, r->left, r->top, r->right, r->bottom);
 }
 
-void 	GetPort( GrafPtr *port )
+void MoveTo( int x, int y )
 {
+	struct RastPort *rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	Move( rp, x,y );
+}
+
+void DrawString(const char *text)
+{
+	struct RastPort *rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	Text( rp, text, strlen(text) );
 }
 
 void OpenDeskAcc(GrafPtr *port)

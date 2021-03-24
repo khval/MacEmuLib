@@ -59,6 +59,7 @@ struct LayersIFace		*ILayers = NULL;
 
 struct _vector_array * m(fd) = NULL;
 struct _vector_array * m(windows) = NULL;
+struct _vector_array * m(mac_event_queue) = NULL;
 
 extern struct NewMenu *n(menu) ;
 extern int m(menus_items_count) ;
@@ -167,6 +168,11 @@ static void cleanup()
 	if (IGraphics) DropInterface((struct Interface*) IGraphics); IGraphics = 0;
 }
 
+void mac_event_queue_destructor( void *item )
+{
+	item = NULL;	// we use circle buffer... mem allocations too slow...
+}
+
 bool OpenMacEMU()
 {
 	if (init() == false ) 
@@ -189,6 +195,13 @@ bool OpenMacEMU()
 		return false;
 	}
 
+	m(mac_event_queue) = _vector_array_new( mac_event_queue_destructor );
+	if (m(mac_event_queue) == NULL)
+	{
+		CloseMacEMU();
+		return false;
+	}
+
 	return true;
 }
 
@@ -198,6 +211,13 @@ void CloseMacEMU()
 
 	cleanup_fd();
 	cleanup_windows();
+
+
+	if (m(mac_event_queue))	// remove the array
+	{
+		_vector_array_delete(m(mac_event_queue));
+		m(mac_event_queue) = NULL;
+	}
 
 	if (m(windows))	// remove the array
 	{

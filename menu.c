@@ -96,8 +96,6 @@ void m(set_menus_items)(void *item)		// We need the size, so we can make menu ta
    	 	n(menu)[n].nm_MutualExclude = 0 ;
 	    	n(menu)[n].nm_UserData = menuID( menu -> id ,nn+1 );
 
-		printf("nm_UserData: %08x\n",n(menu)[n].nm_UserData);
-
 		n(create_menu_counter) ++;
 		n = n(create_menu_counter);
 	}

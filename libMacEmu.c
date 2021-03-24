@@ -63,39 +63,6 @@ struct _vector_array * m(windows) = NULL;
 extern struct NewMenu *n(menu) ;
 extern int m(menus_items_count) ;
 
-
-struct NewMenu testMenu[] =
-{
-	{ NM_TITLE, "Project",	0,0,0,0 },
-	{ NM_ITEM, "Quit",	"Q",0,0,0 },
-	{ NM_END, NULL,	0,0,0,0 },
-};
-
-/*
-void dump_amiga_menu( struct NewMenu *m)
-{
-	int n;
-
-	if (m[0]. nm_Type == NM_END) return;
-
-	for (n=0;;n++)
-	{
-		printf("nm_Type: %d , label: %s\n",  
-				m[n] . nm_Type, 
-
-				m[n] . nm_Type ? 
-					(m[n] . nm_Label ? m[n]. nm_Label  : "NULL") : "END",
-
-				m[n]. nm_Type ? 
-					(m[n] . nm_CommKey ? m[n] . nm_CommKey  : "NULL") : "END"
-
-			);
-
-		if (m[n]. nm_Type == NM_END) break;
-	}
-}
-*/
-
 void mac_fd_destructor (void *item)
 {
 	FClose( (BPTR) item );
@@ -312,6 +279,7 @@ void MaxApplZone(){}
 #define IDCMP_COMMON IDCMP_MOUSEBUTTONS | IDCMP_INACTIVEWINDOW | IDCMP_ACTIVEWINDOW  | \
 	IDCMP_CHANGEWINDOW | IDCMP_MOUSEMOVE | IDCMP_REFRESHWINDOW | IDCMP_RAWKEY | \
 	IDCMP_EXTENDEDMOUSE | IDCMP_CLOSEWINDOW | IDCMP_NEWSIZE | IDCMP_INTUITICKS | IDCMP_MENUPICK | IDCMP_GADGETUP
+
 
 WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon)
 {

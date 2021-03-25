@@ -157,7 +157,37 @@ typedef void * CInfoPBPtr;
 
 typedef int BitMap;
 typedef int CGrafPtr;
-typedef int GrafPort;
+
+typedef struct 
+{
+	short	device;
+	BitMap	protBits;
+	Rect	protRect;
+	Rgnhandle	visRgn;
+	RgnHandle	cliprgn; 
+	Pattern	bkPat;
+	Pattern	fill;
+	Point	Pat;
+	Point	pnLoc;
+	short	pnSize;
+	Pattern	pnMode;
+	short	pnPat;
+	short	pnVis;
+	Style	txfont;
+	Pattern	txFace;
+	short	txMode;
+	short	txSize;
+	short	spExtra;
+	long	fgColor;
+	long	bkColor;
+	short	colrBit;
+	short	patStretch;
+	QDHandle	picSave;
+	QDHandle	rgnSave;
+	QDHandle	polySave;
+	QDProcsPtr	grafProcs;
+} GrafPort;
+
 typedef struct
 {
 	int portPixMap;

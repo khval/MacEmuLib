@@ -40,8 +40,6 @@
 
 extern bool n(refresh_menu) ;
 
-typedef char *GrafPtr;
-
 typedef struct
 {
 	unsigned short red;
@@ -136,8 +134,6 @@ typedef struct {
 	int *ctTable;
 } ** CTabHandle;
 
-
-
 #define WindowPeek WindowPtr
 // hilited
 
@@ -156,7 +152,28 @@ typedef struct _HParamBlockRec1_ {
 typedef void * CInfoPBPtr;
 
 typedef int BitMap;
-typedef int CGrafPtr;
+
+typedef int32_t Pattern;
+typedef int64_t LongInt;
+
+typedef struct
+{
+	GrafPtr thePort;
+	Pattern white;
+	Pattern black;
+	Pattern gray;
+	Pattern tlGray;
+	Pattern dkGray;
+	Pattern arrow;
+	BitMap  screenBits;
+	LongInt randSeed;
+} Graf; 
+
+typedef Graf *GrafPtr;
+
+typedef int *CGrafPtr;
+typedef int *QDHandle;
+typedef int *QDProcsPtr;
 
 typedef struct 
 {
@@ -187,6 +204,14 @@ typedef struct
 	QDHandle	polySave;
 	QDProcsPtr	grafProcs;
 } GrafPort;
+
+typedef struct 
+{
+	int ascent;
+	int descent;
+	int widMax;
+	int leading;
+} FontInfo;
 
 typedef struct
 {
@@ -301,8 +326,8 @@ enum	// event modifiers
 
 enum	// colors
 {
-	black = 0x000000,
-	gray =0xFFAAAAAA,
+	black = 0xFF000000,
+	gray =  0xFFAAAAAA,
 	white = 0xFFFFFFFF
 };
 

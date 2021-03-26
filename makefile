@@ -3,6 +3,8 @@
 p =../
 incdir += -I ./
 
+files += penAndLineDrawing.c
+files += textDrawing.c
 files += menu.c
 files += pathTranslate.c
 files += vector_array.c

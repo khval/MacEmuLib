@@ -10,6 +10,7 @@
 #undef EraseRect
 #undef GetNextEvent
 #undef Draw
+#undef Move
 
 #define Point _mac_Point_
 #define FSOpen _mac_FSOpen

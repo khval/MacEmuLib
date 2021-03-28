@@ -43,6 +43,26 @@
 
 extern bool n(refresh_menu) ;
 
+enum
+{
+	srcCopy,
+	srcOr,
+	srcXor,
+	srcBic,
+	notSrcCopy,
+	notSrcOr,
+	notSrcXor,
+	notSrcBic,
+	patCopy,
+	parOr,
+	patXOr,
+	patBic,
+	notPatCopy,
+	notPatOr,
+	notPatXor,
+	notPatBic
+};
+
 typedef struct
 {
 	unsigned short red;
@@ -70,13 +90,6 @@ typedef struct
 	struct Menu	*menu;
 } n(AWC);
 
-typedef struct __mac_window__{
-	void *portRect;
-	bool hilited;
-	short windowKind;
-	bool visible;
-	n(AWC) AmigaWindowContext;
-} *WindowPtr;
 
 
 typedef char ** Handle;			//  its possible this used as mutex lock.
@@ -143,9 +156,9 @@ typedef int BitMap;
 typedef int32_t Pattern;
 typedef int64_t LongInt;
 
-typedef struct
+typedef struct _Graf
 {
-	GrafPtr thePort;
+	struct _Graf *thePort;
 	Pattern white;
 	Pattern black;
 	Pattern gray;
@@ -158,26 +171,34 @@ typedef struct
 
 typedef Graf *GrafPtr;
 
+
 typedef int *CGrafPtr;
 typedef int *QDHandle;
 typedef int *QDProcsPtr;
 
+typedef void * RgnHandle;
+
+typedef struct // used for fonts.
+{
+	int _dummy_;
+} Style;
+
 typedef struct 
 {
 	short	device;
-	BitMap	protBits;
-	Rect	protRect;
-	Rgnhandle	visRgn;
-	RgnHandle	cliprgn; 
+	BitMap	portBits;
+	Rect		portRect;
+	void *	visRgn;
+	void *	cliprgn; 
 	Pattern	bkPat;
 	Pattern	fill;
-	Point	Pat;
-	Point	pnLoc;
-	short	pnSize;
-	Pattern	pnMode;
-	short	pnPat;
+	Pattern	Pat;
+	Point		pnLoc;
+	Point		pnSize;
+	short	pnMode;
+	Pattern	pnPat;
 	short	pnVis;
-	Style	txfont;
+	Style		txfont;
 	Pattern	txFace;
 	short	txMode;
 	short	txSize;
@@ -190,7 +211,16 @@ typedef struct
 	QDHandle	rgnSave;
 	QDHandle	polySave;
 	QDProcsPtr	grafProcs;
+
+// we add Amiga stuff to the end.
+
+	n(AWC) AmigaWindowContext;
+
 } GrafPort;
+
+typedef char *StringHandle;
+
+typedef void *ControlHandle;
 
 typedef struct 
 {
@@ -199,6 +229,42 @@ typedef struct
 
 typedef Pic *PicPtr;
 typedef PicPtr *PicHandle;
+
+struct WindowRecord
+{
+	union  // think C, might allow you access internals of Port as if they where not grouped. 
+	{
+		GrafPort port;
+
+		struct // first data of GrafPort
+		{
+			short	device;
+			BitMap	portBits;
+			Rect		portRect;
+		};
+	};
+
+    short windowKind;
+    Boolean visible;
+    Boolean hilited;
+    Boolean goAwayFlag;
+    Boolean spareFlag;
+    RgnHandle strucRgn;
+    RgnHandle contRgn;
+    RgnHandle updateRgn;
+    Handle windowDefProc;
+    Handle dataHandle;
+    StringHandle titleHandle;
+    short titleWidth;
+    ControlHandle controlList;
+    struct WindowRecord *nextWindow;
+    PicHandle windowPic;
+    long refCon;
+};
+
+typedef struct WindowRecord *WindowPtr;
+
+//typedef GrafPort *WindowPtr;
 
 typedef struct 
 {
@@ -255,7 +321,7 @@ typedef struct 		// only a placeholder.
 
 typedef __tmp_mac_menu__ *MenuHandle;
 
-typedef void * RgnHandle;
+
 
 typedef void * CursPtr;
 typedef CursPtr * CursHandle;
@@ -478,8 +544,8 @@ void InvalRect();
 void MaxApplZone();
 WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon);
 void SelectWindow();
-void GetPort( WindowPtr *ptr );
-void SetPort( WindowPtr ptr );
+void GetPort( GrafPort **ptr );
+void SetPort( GrafPort *ptr );
 void SystemClick();
 void SystemTask();
 void TEInit();

@@ -3,12 +3,13 @@
 p =../
 incdir += -I ./
 
+files += libMacEmu.c
 files += penAndLineDrawing.c
 files += textDrawing.c
 files += menu.c
 files += pathTranslate.c
 files += vector_array.c
-files += libMacEmu.c
+
 files_o = ${files:.c=.o}
 
 libDir = lib/

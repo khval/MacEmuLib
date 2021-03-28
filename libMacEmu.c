@@ -80,12 +80,13 @@ void cleanup_fd()
 void macWindow_destructor(void *item)
 {
 	WindowPtr macWindow = (WindowPtr) item;
+	GrafPort *port = (GrafPort *) item;
 
 	n(detach_menu_from_window)((void *) macWindow );
 
-	if (macWindow->AmigaWindowContext.win)
+	if (port->AmigaWindowContext.win)
 	{
-		CloseWindow(macWindow->AmigaWindowContext.win);
+		CloseWindow(port->AmigaWindowContext.win);
 	}
 
 	free(macWindow);
@@ -239,7 +240,7 @@ void DragWindow(){}
 void EndUpdate(){}
 void EraseRect( Rect *r ){}
 
-WindowPtr m(used_window) = NULL;
+GrafPort *m(GrafPort) = NULL;
 
 uint16_t FindWindow(m(where) where, WindowPtr *win)
 {
@@ -254,7 +255,7 @@ void FlushEvents( uint32_t mask, uint32_t xxxx);
 
 WindowPeek FrontWindow()
 {
-	return m(used_window);
+	return (WindowPeek) m(GrafPort);
 }
 
 void HideWindow( WindowPtr win ){}
@@ -306,16 +307,17 @@ WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool v
 	int window_width, window_height;
 	WindowPtr macWindow;
 
-	macWindow = (WindowPtr) malloc(sizeof(struct __mac_window__));
+	macWindow = (WindowPtr) malloc(sizeof(struct WindowRecord));
 
 	if (macWindow)
 	{
+		GrafPort *port = (GrafPort *)  macWindow;
 		window_width = bounds->right - bounds->left;
 		window_height = bounds->bottom - bounds->top;
 	
-		macWindow -> AmigaWindowContext.vi = 0;
-		macWindow -> AmigaWindowContext.menu = NULL;
-		macWindow -> AmigaWindowContext.win  = OpenWindowTags( NULL,
+		port -> AmigaWindowContext.vi = 0;
+		port -> AmigaWindowContext.menu = NULL;
+		port -> AmigaWindowContext.win  = OpenWindowTags( NULL,
 //				WA_PubScreen,       (ULONG) fullscreen_screen,
 				WA_Left,			bounds->left,
 				WA_Top,			bounds->top,
@@ -341,7 +343,7 @@ WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool v
 				WA_IDCMP,		IDCMP_COMMON,
 			TAG_DONE);
 		
-		if (macWindow -> AmigaWindowContext.win == NULL)
+		if (port -> AmigaWindowContext.win == NULL)
 		{
 			free(macWindow);
 			macWindow = NULL;
@@ -378,14 +380,14 @@ void empty_que(struct MsgPort *win_port)
 }
 
 
-void 	GetPort( WindowPtr *port )
+void 	GetPort( GrafPort **port )
 {
-	*port = m(used_window);
+	*port = m(GrafPort);
 }
 
-void SetPort( WindowPtr ptr)
+void SetPort( GrafPort *ptr)
 {
-	m(used_window) = ptr ;
+	m(GrafPort) = ptr ;
 }
 
 EventRecord n(io)[1000];
@@ -408,7 +410,7 @@ void n(_get_events_and_convert)(n(AWC) *awc)
 		if (er)
 		{
 			er -> what = none_event;
-			er -> where.window = m(used_window);
+			er -> where.window = (WindowPtr) m(GrafPort);
 
 			switch (cl) 
 			{
@@ -497,9 +499,9 @@ extern void n(create_menu)();
 bool GetNextEvent( int opt, EventRecord *er)
 {
 	struct Window *win;
-	if ((m(used_window) == NULL)||(er == NULL)) return false;
+	if ((m(GrafPort) == NULL)||(er == NULL)) return false;
 		
-	n(_get_events_and_convert)( &m(used_window) -> AmigaWindowContext );
+	n(_get_events_and_convert)( &m(GrafPort) -> AmigaWindowContext );
 
 	if (m(mac_event_queue) -> used)
 	{
@@ -632,12 +634,12 @@ void FillOval( Rect *r, uint32_t color)
 	int ar,br,mr;
 	struct RastPort *rp;
 	struct Window *win;
-	if (m(used_window) == NULL) return ;
+	if (m(GrafPort) == NULL) return ;
 	
 	hr = (r->bottom - r->top) / 2;
 	vr = (r->right - r->left) / 2;
 
-	win  = m(used_window) -> AmigaWindowContext.win;
+	win  = m(GrafPort) -> AmigaWindowContext.win;
 	rp =  win -> RPort;
 
 	cx = r->left + hr + win -> BorderLeft;
@@ -654,10 +656,10 @@ void FillOval( Rect *r, uint32_t color)
 	{
 		br = sqrt( mr*mr - ar*ar);
 
-		Move( rp, cx+ ar,cy - br );
+		IGraphics -> Move( rp, cx+ ar,cy - br );
 		IGraphics -> Draw( rp, cx +ar,cy + br );
 
-		Move( rp, cx- ar,cy - br );
+		IGraphics -> Move( rp, cx- ar,cy - br );
 		IGraphics -> Draw( rp, cx -ar,cy + br );
 
 	}
@@ -675,7 +677,7 @@ void FrameOval(Rect *r)
 	cx = r -> left + hr;
 	cy = r -> top + vr;
 
-	win  = m(used_window) -> AmigaWindowContext.win;
+	win  = m(GrafPort) -> AmigaWindowContext.win;
 	rp =  win -> RPort;
 
 	DrawEllipse( rp, cx + win -> BorderLeft,cy + win -> BorderTop,hr,vr);
@@ -683,19 +685,13 @@ void FrameOval(Rect *r)
 
 void FrameRect(Rect*r)
 {
-	struct RastPort *rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
 	RectFill( rp, r->left, r->top, r->right, r->bottom);
-}
-
-void MoveTo( int x, int y )
-{
-	struct RastPort *rp = m(used_window) -> AmigaWindowContext.win -> RPort;
-	Move( rp, x,y );
 }
 
 void DrawString(const char *text)
 {
-	struct RastPort *rp = m(used_window) -> AmigaWindowContext.win -> RPort;
+	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
 	Text( rp, text, strlen(text) );
 }
 

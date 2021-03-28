@@ -27,7 +27,7 @@ void n(attach_menu_to_window)(void *item)
 		return ;
 	}
 
-	n(AWC) *awc = &((WindowPtr) (item))->AmigaWindowContext;
+	n(AWC) *awc = &((GrafPort *) (item))->AmigaWindowContext;
 
 	if (awc)
 	{
@@ -58,7 +58,7 @@ void n(attach_menu)()
 
 void n(detach_menu_from_window) (void *item)
 {
-	n(AWC) *awc = &((WindowPtr) (item)) -> AmigaWindowContext;
+	n(AWC) *awc = &((GrafPort *) (item)) -> AmigaWindowContext;
 
 	if (awc)
 	{

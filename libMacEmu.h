@@ -18,6 +18,8 @@
 #define FSClose _mac_FSClose
 #define ColorSpec _mac_ColorSpec
 #define BitMap _mac_BitMap
+#define RgnHandle _mac_RgnHandle
+#define Style _mac_Style
 
 #ifdef AddResource
 // found in "proto/exec.h", but is not the same in macos.
@@ -76,22 +78,6 @@ typedef struct __mac_window__{
 	n(AWC) AmigaWindowContext;
 } *WindowPtr;
 
-typedef struct 
-{
-	Point point;
-	WindowPtr window;
-	uint16_t windowCode;
-	uint32_t code;
-} m(where);
-
-typedef struct 
-{
-	int what;
-	m(where) where;
-	int when;
-	int message;
-	int modifiers;
-} EventRecord;
 
 typedef char ** Handle;			//  its possible this used as mutex lock.
 
@@ -206,6 +192,30 @@ typedef struct
 	QDProcsPtr	grafProcs;
 } GrafPort;
 
+typedef struct 
+{
+	Rect picFrame;
+} Pic;
+
+typedef Pic *PicPtr;
+typedef PicPtr *PicHandle;
+
+typedef struct 
+{
+	Point point;
+	WindowPtr window;
+	uint16_t windowCode;
+	uint32_t code;
+} m(where);
+
+typedef struct 
+{
+	int what;
+	m(where) where;
+	int when;
+	int message;
+	int modifiers;
+} EventRecord;
 typedef struct 
 {
 	int ascent;
@@ -347,13 +357,7 @@ typedef struct
 	FSSpec sfFile;
 } StandardFileReply;
 
-typedef struct 
-{
-	Rect picFrame;
-} Pic;
 
-typedef Pic *PicPtr;
-typedef PicPtr *PicHandle;
 
 typedef struct 
 {

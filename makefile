@@ -3,6 +3,7 @@
 p =../
 incdir += -I ./
 
+files += Resources.c
 files += libMacEmu.c
 files += penAndLineDrawing.c
 files += textDrawing.c

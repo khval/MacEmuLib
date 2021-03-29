@@ -43,6 +43,9 @@
 
 extern bool n(refresh_menu) ;
 
+typedef int OSType;
+typedef int ScriptCode;
+
 enum
 {
 	srcCopy,
@@ -495,7 +498,6 @@ extern void HuffExpandFlashTables( unsigned char *, int , unsigned long *, int  
 extern void HLock( Handle h );
 extern void HUnlock( Handle h );
 extern long KeyTranslate(void *ptr, int ,  UInt32 *);
-extern Handle GetIndResource(uint16_t catgory, int count );
 extern void GetKeys( UInt32 *array );
 
 extern bool OSEventAvail( uint32_t mask, EventRecord *event );		// like GetMsg() for AmigaOS.
@@ -581,4 +583,6 @@ void SysBeep(int nr);
 #ifdef __cplusplus
 }
 #endif
+
+#include "Resources.h"
 

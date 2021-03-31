@@ -11,6 +11,9 @@
 #undef GetNextEvent
 #undef Draw
 #undef Move
+#undef GetCurrentDir
+#undef Write
+#undef Read
 
 #define Point _mac_Point_
 #define FSOpen _mac_FSOpen
@@ -93,26 +96,33 @@ typedef struct
 	struct Menu	*menu;
 } n(AWC);
 
-
+typedef int SysEnvRec;
 
 typedef char ** Handle;			//  its possible this used as mutex lock.
 
 #define NewHandle(extraSize) (malloc( sizeof(Handle) + extraSize ))
 
-typedef const char ConstStr255Param[256];
+typedef const char *ConstStr255Param;
 typedef char Str255[256];
-typedef char Str31[31];
+typedef char Str31[32];
+typedef char Str63[64];
 
 typedef uint32_t OSErr;
 typedef bool Boolean;
 
+typedef struct {
+	short left;
+	short top;
+	short right;
+	short bottom;
+} Rect;
 
 typedef struct {
 	int left;
 	int top;
 	int right;
 	int bottom;
-} Rect;
+} LongRect;
 
 typedef struct {
 
@@ -159,20 +169,7 @@ typedef int BitMap;
 typedef int32_t Pattern;
 typedef int64_t LongInt;
 
-typedef struct _Graf
-{
-	struct _Graf *thePort;
-	Pattern white;
-	Pattern black;
-	Pattern gray;
-	Pattern tlGray;
-	Pattern dkGray;
-	Pattern arrow;
-	BitMap  screenBits;
-	LongInt randSeed;
-} Graf; 
 
-typedef Graf *GrafPtr;
 
 
 typedef int *CGrafPtr;
@@ -220,6 +217,21 @@ typedef struct
 	n(AWC) AmigaWindowContext;
 
 } GrafPort;
+
+typedef struct _Graf
+{
+	struct _Graf *thePort;
+	Pattern white;
+	Pattern black;
+	Pattern gray;
+	Pattern tlGray;
+	Pattern dkGray;
+	Pattern arrow;
+	BitMap  screenBits;
+	LongInt randSeed;
+} Graf; 
+
+typedef Graf *GrafPtr;
 
 typedef char *StringHandle;
 
@@ -285,6 +297,9 @@ typedef struct
 	int message;
 	int modifiers;
 } EventRecord;
+
+extern GrafPort this_GrafPort ;	// this maybe wrong... but it will be changed, its place holder.
+
 typedef struct 
 {
 	int ascent;
@@ -304,6 +319,8 @@ typedef struct
 	int vRefNum;
 	int parID;
 } FSSpec;
+
+typedef FSSpec * FSSpecPtr;
 
 typedef struct
 {
@@ -325,12 +342,16 @@ typedef struct 		// only a placeholder.
 typedef __tmp_mac_menu__ *MenuHandle;
 
 
+#define PtoCstr(a) a
+#define CtoPstr(a) a
+
 
 typedef void * CursPtr;
 typedef CursPtr * CursHandle;
 
 typedef struct {
 	PixMapHandle gdPMap;
+	Rect  gdRect;
 } GD;
 
 typedef GD *GDPtr;
@@ -427,6 +448,15 @@ typedef struct
 } StandardFileReply;
 
 
+typedef struct
+{
+	int __dummy;
+} PixPatHandle;
+
+typedef struct
+{
+	int __dummy;
+} PatHandle;
 
 typedef struct 
 {
@@ -478,12 +508,40 @@ typedef struct
 	int pause_atexit ;
 } console_options_type;
 
+typedef struct 
+{
+	void *__dummy;
+} ModalFilterUPP;
+
 extern console_options_type console_options;
 
 enum
 {
 	scUserCancelled = 1
 };
+
+typedef struct 
+{
+	void *__dummy;
+} DialogPtr ;
+
+typedef struct 
+{
+	void *__dummy;
+} SndChannel ;
+
+typedef SndChannel  SndChannelPtr ;
+
+typedef struct 
+{
+	void *cmd;
+	void *param1;
+	void *param2;
+} SndCommand ;
+
+
+extern int errcode;
+
 
 #define noGrowDocProc 0
 
@@ -508,6 +566,10 @@ extern void LocalToGlobal( Point *point );
 extern uint32_t TickCount();
 extern void FlushEvents( uint32_t mask, uint32_t xxxx);
 
+extern void LockPixels(char);
+extern void UnlockPixels(char);
+extern Pic **GetPicture(int);
+
 #define GlobalToLocal(x)		// not something AmigaOS has, changes owner of data.
 
 typedef int TimerUPP;
@@ -524,7 +586,7 @@ extern bool OpenMacEMU();
 extern void CloseMacEMU();
 
 void BeginUpdate();
-void DragWindow();
+void DragWindow(void *,void *,void *);
 void EndUpdate();
 void EraseRect(Rect *r);
 void FillOval( Rect *bounds, uint32_t color );
@@ -533,7 +595,16 @@ uint16_t FindWindow( m(where) where, WindowPtr *win);
 void FlushEvents( uint32_t mask, uint32_t xxxx);
 WindowPeek FrontWindow();
 bool GetNextEvent( int opt, EventRecord *er);
-void HideWindow();
+
+void ShowWindow( WindowPtr ptr );		// takes DialogPtr or WindowPtr as input
+void HideWindow( WindowPtr ptr );		// takes DialogPtr or WindowPtr as input
+
+#define ShowWindow(ptr) ShowWindow( (WindowPtr) ptr )
+#define HideWindow(ptr) HideWindow( (WindowPtr) ptr )
+
+void 	Pt2Rect(Point p1,Point p2,Rect *r);
+void 	Prepare();
+
 void HiliteMenu();
 void InitCursor();
 void InitDialogs();
@@ -541,14 +612,14 @@ void InitFonts();
 void InitGraf();
 void InitMenus();
 void InitWindows();
-void InsetRect( Rect *r, int w,int h );
+void InsetRect( Rect *r, short w,short h );
 void InvalRect();
 void MaxApplZone();
 WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon);
 void SelectWindow();
 void GetPort( GrafPort **ptr );
 void SetPort( GrafPort *ptr );
-void SystemClick();
+void SystemClick( void *x );
 void SystemTask();
 void TEInit();
 bool TrackGoAway( WindowPtr win ,m(where) where);
@@ -572,10 +643,26 @@ void EnableItem(MenuHandle menu, short item);
 void DisableItem(MenuHandle menu, short item);
 
 void GetItem( MenuHandle menu, int Item, char *name);
-void OpenDeskAcc(GrafPtr *port);
+void OpenDeskAcc(GrafPtr port);
 void ExitToShell();
 bool SystemEdit( int item );
 void SysBeep(int nr);
+
+void SetRect(Rect *r,short x0,short y0,short x1,short y1);
+void RGBForeColor(RGBColor*rgb);
+void ForeColor(int c);
+void PaintRect(Rect *r);
+void FillCRgn(void *gBackgroundRgn,PixPatHandle gMyPat);
+
+void SetDialogItemText(void *, const char *txt);
+void DisposeDialog();
+
+void GetFrame( LongRect *r );		// get size of window?
+
+typedef uint32_t Size;
+
+#define blackColor 0
+#define whiteColor  1
 
 #define HiWord(x) ( (x) >> 16);
 #define LoWord(x) ( (x) & 0xFFFF)
@@ -586,3 +673,4 @@ void SysBeep(int nr);
 
 #include "Resources.h"
 
+#define SetPort(x) SetPort( (GrafPort*) x);

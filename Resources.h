@@ -3,6 +3,59 @@
 #ifndef __RESOURCES__
 #define __RESOURCES__
 
+struct __attribute__((__packed__)) resource_header
+{
+	uint32_t data_offset;
+	uint32_t map_offset;
+	uint32_t data_length;
+	uint32_t map_length;
+	char sys[112];
+	char app[128];
+};
+
+
+struct __attribute__((__packed__)) resource_data_header
+{
+	uint32_t data_length;
+};
+
+struct __attribute__((__packed__)) resource_map_header
+{
+	uint16_t file_attrs_and_flags;
+	uint16_t type_list_offset;
+	uint16_t name_list_offset;
+};
+
+struct __attribute__((__packed__)) resource_type_list_header
+{
+	uint16_t num_resource_types;
+};
+
+struct __attribute__((__packed__)) resource_type
+{
+	char id[4];
+	int32_t num_res;
+	int32_t type_lits_offset;
+};
+
+struct __attribute__((__packed__)) resource_ref
+{
+	uint16_t id;
+	uint16_t offset_from_name_list_to_length_of_resource_name;
+
+	union
+	{
+		char attrs_and_flags ;
+		uint32_t ref_offset;	// offset from resource data..
+	};
+};
+
+struct __attribute__((__packed__)) resource_name_header
+{
+	char name_ptr;
+};
+
+
 enum {
 
     resSysHeap = 64,    /*System or application heap?*/

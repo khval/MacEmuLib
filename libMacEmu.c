@@ -4,7 +4,13 @@
 #include "pathTranslate.h"
 #include <proto/gadtools.h>
 
+#undef HideWindow
+#undef ShowWindow
+#undef SetPort
+
 PixMap screenBits;
+
+GrafPort this_GrafPort;	// this maybe wrong... but it will be changed, its place holder.
 
 console_options_type console_options;
 
@@ -236,7 +242,12 @@ void CloseMacEMU()
 }
 
 void BeginUpdate(){}
-void DragWindow(){}
+
+void DragWindow(void *a,void *b,void *c)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 void EndUpdate(){}
 void EraseRect( Rect *r ){}
 
@@ -286,12 +297,20 @@ void InitWindows()
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void InsetRect( Rect *r, int w,int h )
+void InsetRect( Rect *r, short w,short h )
 {
 	r->left+=w;
 	r->right-=w;
 	r->top+=h;
 	r->bottom-=h;
+}
+
+void SetRect(Rect *r,short x0,short y0,short x1,short y1)
+{
+	r->left=x0;
+	r->right=x1;
+	r->top=y0;
+	r->bottom=y1;
 }
 
 void InvalRect(){}
@@ -524,8 +543,9 @@ bool GetNextEvent( int opt, EventRecord *er)
 }
 
 
-void SystemClick()
+void SystemClick( void *x )
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void SystemTask()
@@ -578,7 +598,7 @@ short _mac_FSRead( short fd, long int *size, void *ptr)
 	fd--;
 
 	if (m(fd) -> array[fd])
-		return Read( (BPTR) m(fd)->array[fd], ptr, *size );
+		return IDOS -> Read( (BPTR) m(fd)->array[fd], ptr, *size );
 
 
 	return 0;
@@ -619,7 +639,6 @@ void SFGetFile( Point pos, const char *name, int a, int b, int c, int d, SFReply
 
 void HLock(Handle ptr)
 {
-
 	// do nothing, this has to do with virtual memory in macos
 }
 
@@ -689,14 +708,26 @@ void FrameRect(Rect*r)
 	RectFill( rp, r->left, r->top, r->right, r->bottom);
 }
 
+void GetFrame( LongRect *r )		// not sure if this correct, some examples suggest its window draw aria.
+{
+	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+
+	r -> left = win -> BorderLeft;
+	r -> top = win -> BorderTop;
+	r -> right = win -> Width - r -> left - win -> BorderRight;
+	r -> bottom = win -> Height - r -> top - win -> BorderBottom;
+
+}
+
 void DrawString(const char *text)
 {
 	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
 	Text( rp, text, strlen(text) );
 }
 
-void OpenDeskAcc(GrafPtr *port)
+void OpenDeskAcc(GrafPtr port)
 {
+
 }
 
 void CloseDeskAcc( short windowKind )
@@ -715,5 +746,18 @@ bool SystemEdit( int item )
 
 void SysBeep(int nr)
 {
+}
+
+void 	Pt2Rect(Point p1,Point p2,Rect *r)
+{
+	r -> left = p1.v < p2.v ? p1.v : p2.v;
+	r -> top = p1.h < p2.h ? p1.h : p2.h;
+	r -> right = p1.v > p2.v ? p1.v : p2.v;
+	r -> bottom = p1.h > p2.h ? p1.h : p2.h;
+}
+
+void 	Prepare()
+{
+	// should do nothing on Amiga, this has to do with cooperative multitasking.
 }
 

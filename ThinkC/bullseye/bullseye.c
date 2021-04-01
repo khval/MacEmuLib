@@ -105,7 +105,9 @@ void  HandleEvent(void)
 
 int main()
 {
+#ifdef __amigaos4__
 	if (OpenMacEMU() == false) return -30;
+#endif
 
 	InitMacintosh();
 
@@ -113,14 +115,12 @@ int main()
 
 	SetUpMenus();	
  	SetUpWindow();
+	for (;;) HandleEvent();
 
 #ifdef __amigaos4__
-	for (;;) { HandleEvent();  Delay(1); }
-#else
-	for (;;) HandleEvent();
+	CloseMacEMU();
 #endif
 
-	CloseMacEMU();
 	return 0;
 }
 

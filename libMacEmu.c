@@ -711,12 +711,12 @@ void FrameRect(Rect*r)
 void GetFrame( LongRect *r )		// not sure if this correct, some examples suggest its window draw aria.
 {
 	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+	struct RastPort *rp = win -> RPort;
 
 	r -> left = win -> BorderLeft;
 	r -> top = win -> BorderTop;
-	r -> right = win -> Width - r -> left - win -> BorderRight;
-	r -> bottom = win -> Height - r -> top - win -> BorderBottom;
-
+	r -> right = win -> Width - win -> BorderRight;
+	r -> bottom = win -> Height -  win -> BorderBottom;
 }
 
 void DrawString(const char *text)

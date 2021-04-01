@@ -750,10 +750,10 @@ void SysBeep(int nr)
 
 void 	Pt2Rect(Point p1,Point p2,Rect *r)
 {
-	r -> left = p1.v < p2.v ? p1.v : p2.v;
-	r -> top = p1.h < p2.h ? p1.h : p2.h;
-	r -> right = p1.v > p2.v ? p1.v : p2.v;
-	r -> bottom = p1.h > p2.h ? p1.h : p2.h;
+	r -> left = p1.h < p2.h ? p1.h : p2.h;
+	r -> top = p1.v < p2.v ? p1.v : p2.v;
+	r -> right = p1.h > p2.h ? p1.h : p2.h;
+	r -> bottom = p1.v > p2.v ? p1.v : p2.v;
 }
 
 void 	Prepare()

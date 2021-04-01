@@ -10,7 +10,7 @@ libs = -lMacEmu
 incdir += -I $(p)
 incdir += -I ${p}${p}
 
-files += missing.cpp
+files += ../missing.cpp
 files += TRandom.cpp
 files += CRectangleApp.cpp
 files += CRandomRectanglePane.cpp

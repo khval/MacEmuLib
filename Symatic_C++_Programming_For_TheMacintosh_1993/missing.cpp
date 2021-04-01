@@ -5,17 +5,38 @@
 
 #include "missing.h"
 
-CAapplication::CAapplication()
+CApplication::CApplication()
 {
 	cbureaucrat = NULL;
 }
 
-void CAapplication::Exit()
+void CApplication::Exit()
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void CAapplication::Run()
+
+bool  n(handelEvensts)( WindowRecord *window )
+{
+	bool isQuit = false;
+	struct IntuiMessage *msg;
+	struct Window *win = ((GrafPort *) window) -> AmigaWindowContext.win;
+
+	while (msg = (struct IntuiMessage *) GetMsg(win -> UserPort))
+	{
+		switch (msg -> Class)
+		{
+				case IDCMP_CLOSEWINDOW:
+					isQuit = true;
+					break;
+		}
+
+		ReplyMsg((struct Message *) msg);
+	}
+	return isQuit;
+}
+
+void CApplication::Run()
 {
 	bool quit = false;
 
@@ -39,6 +60,8 @@ void CAapplication::Run()
 
 				while( ! quit )
 				{
+					quit = n(handelEvensts)( cbureaucrat -> itsWindow -> window);
+
 					cbureaucrat -> itsGopher -> Dawdle(&maxSleep);
 					Delay(maxSleep);
 				}
@@ -47,11 +70,11 @@ void CAapplication::Run()
 	}
 }
 
-void CDirector::IDirector(CAapplication*Capp)
+void CDirector::IDirector(CApplication*Capp)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	// not sure if this is correct, but need, app to know about Bureaucrat
+	// not sure if this correct, but need, app to know about Bureaucrat
 	Capp -> cbureaucrat = this;
 }
 

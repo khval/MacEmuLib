@@ -21,12 +21,19 @@ class CView
 };
 
 
-class CAapplication
+class CApplication
 {
 	public:
+
+		short sfNumType;
+		short sfFileTypes[20];
+		short gSignature;
+
 		CBureaucrat *cbureaucrat;
 
-		CAapplication();
+		CApplication();
+
+		void SetUpFileParameters();
 
 		virtual void Exit();
 		virtual void Run();
@@ -37,7 +44,7 @@ class CBureaucrat
 {
 	public:
 		CBureaucrat();
-		CAapplication *app;
+		CApplication *app;
 		CView *itsWindow;		// the window to draw on.
 		CPane *itsGopher;		// the gadgets going to be drawen
 };
@@ -45,7 +52,7 @@ class CBureaucrat
 class CDirector : public CBureaucrat
 {
 	public:
-		void IDirector(CAapplication *capp);
+		void IDirector(CApplication *capp);
 };
 
 

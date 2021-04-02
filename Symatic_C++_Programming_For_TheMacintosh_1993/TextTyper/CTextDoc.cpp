@@ -29,7 +29,7 @@ void CTextDoc::NewFile()
 	itsWindow->GetTitle(wTitle);
 	wCount = gDecorator->GetWCount();
 	::NumToString(wCount,wNumber);
-	::ConcatPStrings(2Title,"-");
+	::ConcatPStrings(wTitle,"-");
 	itsWindow -> SetTitle(wTitle);
 	itsWindow -> Select();
 }

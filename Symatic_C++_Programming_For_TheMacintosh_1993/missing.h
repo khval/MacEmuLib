@@ -20,25 +20,16 @@ class CView
 		CBureaucrat *cbureaucrat;
 };
 
-
-class CApplication
+class m(itsWindow)	// name is not know at this time...
 {
 	public:
-
-		short sfNumType;
-		short sfFileTypes[20];
-		short gSignature;
-
-		CBureaucrat *cbureaucrat;
-
-		CApplication();
-
-		void SetUpFileParameters();
-
-		virtual void Exit();
-		virtual void Run();
+		void GetTitle(Str255 &ptr);
+		void SetTitle(Str255 &ptr);
+		void Select();
 };
 
+class CDecorator;
+class CApplication;
 
 class CBureaucrat
 {
@@ -48,6 +39,38 @@ class CBureaucrat
 		CView *itsWindow;		// the window to draw on.
 		CPane *itsGopher;		// the gadgets going to be drawen
 };
+
+class CDirectorOwner : public CBureaucrat
+{
+
+};
+
+class CApplication : public CDirectorOwner
+{
+	public:
+
+		short sfNumType;
+		short sfFileTypes[20];
+		short gSignature;
+
+		CApplication();
+
+		CBureaucrat *cbureaucrat;
+		CDecorator *gDecorator;
+
+		void SetUpFileParameters();
+
+		virtual void Exit();
+		virtual void Run();
+};
+
+
+class CDecorator
+{
+	public:
+		int GetWCount();
+};
+
 
 class CDirector : public CBureaucrat
 {

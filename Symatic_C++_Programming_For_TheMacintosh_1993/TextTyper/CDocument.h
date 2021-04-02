@@ -1,8 +1,12 @@
 
 
-class CDocument
+class CDocument : public CApplication
 {
+	Boolean kPrintable;
+
 	public:
-		int __lots_of_stuff__;
+		m(itsWindow) *itsWindow;
+
+		void IDocument( class CBureaucrat *_supervisor, Boolean _kPrintable);
 };
 

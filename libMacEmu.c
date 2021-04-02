@@ -761,3 +761,25 @@ void 	Prepare()
 	// should do nothing on Amiga, this has to do with cooperative multitasking.
 }
 
+void ConcatPStrings(Str255 str, char *cut)
+{
+	int sl;
+	int n;
+
+	sl = 255 - strlen(cut);
+
+	for (n = 0;n<sl;n++)
+	{
+		if (strcmp(str + n,cut)==0)
+		{
+			str[n]=0;
+			return;
+		}
+	}
+}
+
+void NumToString(int num,char *out)
+{
+	sprintf(out,"%d",num);
+}
+

@@ -659,6 +659,9 @@ void DisposeDialog();
 
 void GetFrame( LongRect *r );		// get size of window?
 
+void ConcatPStrings(Str255 str, char *cut);
+void NumToString(int wCount,char *out);
+
 typedef uint32_t Size;
 
 #define blackColor 0

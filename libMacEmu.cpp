@@ -83,6 +83,9 @@ void cleanup_fd()
 	}
 }
 
+extern void n(detach_menu_from_window)( void *macWindow );
+extern void n(attach_menu_to_window)( void *macWindow );
+
 void macWindow_destructor(void *item)
 {
 	WindowPtr macWindow = (WindowPtr) item;
@@ -655,6 +658,8 @@ void FillOval( Rect *r, uint32_t color)
 	struct Window *win;
 	if (m(GrafPort) == NULL) return ;
 	
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	hr = (r->bottom - r->top) / 2;
 	vr = (r->right - r->left) / 2;
 
@@ -761,21 +766,14 @@ void 	Prepare()
 	// should do nothing on Amiga, this has to do with cooperative multitasking.
 }
 
-void ConcatPStrings(Str255 str, char *cut)
+void LibMacEmu::ConcatPStrings(Str255 str, const char *merge)
 {
-	int sl;
-	int n;
+	strncat( str, merge, 255 );
+}
 
-	sl = 255 - strlen(cut);
-
-	for (n = 0;n<sl;n++)
-	{
-		if (strcmp(str + n,cut)==0)
-		{
-			str[n]=0;
-			return;
-		}
-	}
+void LibMacEmu::ConcatPStrings(Str255 str, int num)
+{
+	snprintf( str, 255, "%s %d", str, num );
 }
 
 void NumToString(int num,char *out)

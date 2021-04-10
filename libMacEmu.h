@@ -14,6 +14,7 @@
 #undef GetCurrentDir
 #undef Write
 #undef Read
+#undef Open
 
 #define Point _mac_Point_
 #define FSOpen _mac_FSOpen
@@ -669,6 +670,17 @@ typedef uint32_t Size;
 
 #define HiWord(x) ( (x) >> 16);
 #define LoWord(x) ( (x) & 0xFFFF)
+
+#ifdef __cplusplus
+
+class LibMacEmu		// for overloaded function, ThinkC, PowerC most be doing some magic to have have classes whitout names.
+{
+	public:
+ 		static void ConcatPStrings(Str255 str, const char *merge);
+	 	static void ConcatPStrings(Str255 str, int num);
+};
+
+#endif
 
 #ifdef __cplusplus
 }

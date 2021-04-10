@@ -15,6 +15,7 @@
 #undef Write
 #undef Read
 #undef Open
+#undef Close
 
 #define Point _mac_Point_
 #define FSOpen _mac_FSOpen
@@ -24,6 +25,9 @@
 #define BitMap _mac_BitMap
 #define RgnHandle _mac_RgnHandle
 #define Style _mac_Style
+
+#define TRY try
+#define CATCH catch( int )
 
 #ifdef AddResource
 // found in "proto/exec.h", but is not the same in macos.
@@ -689,3 +693,9 @@ class LibMacEmu		// for overloaded function, ThinkC, PowerC most be doing some m
 #include "Resources.h"
 
 #define SetPort(x) SetPort( (GrafPort*) x);
+
+#define excExeedTELimit 1
+#define fsRdPerm 1
+
+#define DisposeHandle(x) delete x
+#define Failure(a,b) throw(b)

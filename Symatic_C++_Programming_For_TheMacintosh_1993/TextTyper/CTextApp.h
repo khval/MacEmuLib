@@ -1,4 +1,7 @@
 
+#ifndef CTextApp_h
+#define CTextApp_h
+
 class CTextApp: public CApplication
 {
 	public:
@@ -9,4 +12,6 @@ class CTextApp: public CApplication
 		virtual void	OpenDocument(SFReply *macReply);
 		virtual void	SetUpFileParameters();
 };
+
+#endif
 

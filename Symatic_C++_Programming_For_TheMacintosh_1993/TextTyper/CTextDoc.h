@@ -1,6 +1,10 @@
 
 // CTextDoc -> CDocument -> CApplication
 
+#ifndef CTextDoc_h
+#define CTextDoc_h
+
+#include "CDocument.h"
 #include "CEditText.h"
 
 class CTextDoc : public CDocument
@@ -19,4 +23,6 @@ class CTextDoc : public CDocument
 	private:
 		CEditText	*fEditText;
 };
+
+#endif
 

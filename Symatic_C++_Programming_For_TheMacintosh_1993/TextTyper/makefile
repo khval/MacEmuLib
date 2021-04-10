@@ -16,6 +16,7 @@ files += ../CDocument.cpp
 files += ../CDecorator.cpp
 files += ../CScrollPane.cpp
 files += ../CEditText.cpp
+files += ../CDataFile.cpp
 files += CTextDoc.cpp
 files += CTextApp.cpp
 
@@ -28,6 +29,7 @@ opts += -Dpascal=
 opts += -D_CLASSDEF(x)= 
 opts += -Dfarcalloc=calloc 
 opts += -Dfarrealloc=realloc
+opts += -DENDTRY=
 
 all:	$(objs)
 	$(c) ${incdir} ${libdir} $(opts) $(name).cpp $(objs) $(libs) -o $(name)

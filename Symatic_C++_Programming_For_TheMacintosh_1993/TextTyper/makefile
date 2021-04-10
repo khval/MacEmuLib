@@ -7,14 +7,19 @@ libdir = -L ${p}${p}lib/
 
 libs = -lMacEmu
 
-incdir += -I $(p)
+incdir += -I $(p) -I ./
 incdir += -I ${p}${p}
 
 files += ../missing.cpp		# i think this was is called TCL in the book.
+files += ../CApplication.cpp
+files += ../CDocument.cpp
+files += ../CDecorator.cpp
+files += ../CScrollPane.cpp
+files += ../CEditText.cpp
 files += CTextDoc.cpp
 files += CTextApp.cpp
 
-name = CTextAPP
+name = main
 
 objs = ${files:.cpp=.o}
 

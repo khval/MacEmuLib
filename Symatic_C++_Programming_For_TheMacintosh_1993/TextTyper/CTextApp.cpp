@@ -8,6 +8,7 @@
 #include "CEditText.h"
 #include "CTextDoc.h"
 #include "CTextAPP.h"
+#include "CScrollPane.h"
 
 void CTextApp::ITextApp()
 {
@@ -25,8 +26,9 @@ void CTextApp::ITextApp()
 
 void CTextApp::CreateDocument()
 {
-	CTextDoc *theDocument = new CTextDoc;
 
+	CTextDoc *theDocument = new CTextDoc();
+/*
 	try
 	{
 		theDocument -> ITextDoc(this);
@@ -35,7 +37,7 @@ void CTextApp::CreateDocument()
 	catch (int error)
 	{
 		ForgetObject( theDocument );
-	}
+	}*/
 }
 
 void CTextApp::OpenDocument(SFReply *macReply)

@@ -106,7 +106,7 @@ char *_mac_to_amiga_path(const  char *path )
 	const char *s_end = path + l;
 	const char *s_ptr;
 
-	newstr = malloc( l + 1);
+	newstr = (char *) malloc( l + 1);
 	bool first_divider = true;
 
 	if (newstr)
@@ -147,7 +147,7 @@ char *_amiga_to_mac_path( const char *path )
 	const char *s_ptr;
 	char *newstr ;
 	char *d_ptr;
-	newstr = malloc( l + 1);
+	newstr = (char *) malloc( l + 1);
 	bool first_divider = true;
 
 	if (newstr)

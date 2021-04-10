@@ -3,15 +3,15 @@
 p =../
 incdir += -I ./
 
-files += Resources.c
-files += libMacEmu.c
-files += penAndLineDrawing.c
-files += textDrawing.c
-files += menu.c
-files += pathTranslate.c
-files += vector_array.c
+files += Resources.cpp
+files += libMacEmu.cpp
+files += penAndLineDrawing.cpp
+files += textDrawing.cpp
+files += menu.cpp
+files += pathTranslate.cpp
+files += vector_array.cpp
 
-files_o = ${files:.c=.o}
+files_o = ${files:.cpp=.o}
 
 libDir = lib/
 libName = libMacEmu.a
@@ -23,8 +23,8 @@ all:	  $(libName)	$(test_elfs)
 $(libName): $(files_o)
 	ar rcs $(libDir)$@ ${files_o}
 
-%.o:	%.c
-		gcc -c ${incdir} ${libdir} $(opts) $< $(libs) -o $@
+%.o:	%.cpp
+		g++ -c ${incdir} ${libdir} $(opts) $< $(libs) -o $@
 
 clean:
 	rm $(files_o) $(libDir)$(libName)

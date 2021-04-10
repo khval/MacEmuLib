@@ -179,7 +179,7 @@ MenuHandle NewMenu(short id, const char *description)
 {
 	__tmp_mac_menu__ *menu;		// tmp, I don't know correct structure for the menu yet.
 
-	menu = calloc (1,sizeof(__tmp_mac_menu__));
+	menu = (__tmp_mac_menu__ *) calloc (1,sizeof(__tmp_mac_menu__));
 
 	if (menu)
 	{

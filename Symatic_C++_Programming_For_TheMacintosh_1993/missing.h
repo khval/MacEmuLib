@@ -18,11 +18,6 @@ class CView
 	public:
 		WindowPtr window;
 		CBureaucrat *cbureaucrat;
-};
-
-class m(itsWindow)	// name is not know at this time...
-{
-	public:
 		void GetTitle(Str255 &ptr);
 		void SetTitle(Str255 &ptr);
 		void Select();
@@ -31,7 +26,12 @@ class m(itsWindow)	// name is not know at this time...
 class CDecorator;
 class CApplication;
 
-class CBureaucrat
+class CCollaborator
+{
+	public:
+};
+
+class CBureaucrat : CCollaborator
 {
 	public:
 		CBureaucrat();
@@ -49,11 +49,11 @@ class CApplication : public CDirectorOwner
 {
 	public:
 
+		CApplication();
+
 		short sfNumType;
 		short sfFileTypes[20];
 		short gSignature;
-
-		CApplication();
 
 		CBureaucrat *cbureaucrat;
 		CDecorator *gDecorator;
@@ -69,8 +69,11 @@ class CDecorator
 {
 	public:
 		int GetWCount();
+		void PlaceNewWindow(CView *win);
 };
 
+
+//  CDirector -> CBureaucrat -> CCollaborator
 
 class CDirector : public CBureaucrat
 {
@@ -83,15 +86,16 @@ class CWindow : public CView
 {
 	public:
 		void IWindow(
-			short kind,
+			const short kind,
 			Boolean hasFloats,
 			int desktop,
-			CDirector *aDirector
+			CBureaucrat *cbureaucrat
 		);
 };
+
 
 #define IApplication(a,b,c,d)
 
 #define gDesktop 1
-#define sizeELASTIC 1
+#define sizELASTIC 1
 

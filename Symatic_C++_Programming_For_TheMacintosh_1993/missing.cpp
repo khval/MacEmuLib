@@ -5,17 +5,6 @@
 
 #include "missing.h"
 
-CApplication::CApplication()
-{
-	cbureaucrat = NULL;
-}
-
-void CApplication::Exit()
-{
-	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
-}
-
-
 bool  n(handelEvensts)( WindowRecord *window )
 {
 	bool isQuit = false;
@@ -36,39 +25,6 @@ bool  n(handelEvensts)( WindowRecord *window )
 	return isQuit;
 }
 
-void CApplication::Run()
-{
-	bool quit = false;
-
-	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
-
-	if (cbureaucrat)
-	{
-		printf("found a bureaucrat...\n");
-
-		if (cbureaucrat -> itsWindow)	// class
-		{
-			printf("he has a window\n");
-
-			SetPort( cbureaucrat -> itsWindow -> window );
-
-			if (cbureaucrat -> itsGopher)
-			{
-				int maxSleep;
-
-				printf("he has work to do\n");
-
-				while( ! quit )
-				{
-					quit = n(handelEvensts)( cbureaucrat -> itsWindow -> window);
-
-					cbureaucrat -> itsGopher -> Dawdle(&maxSleep);
-					Delay(maxSleep);
-				}
-			}
-		}
-	}
-}
 
 void CDirector::IDirector(CApplication*Capp)
 {
@@ -78,12 +34,12 @@ void CDirector::IDirector(CApplication*Capp)
 	Capp -> cbureaucrat = this;
 }
 
-void CWindow::IWindow(short, bool, int, CDirector*cd)
+void CWindow::IWindow(short, bool, int, CBureaucrat *bureaucrat)
 {
 	Rect bounds;
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	cbureaucrat = cd;
+	cbureaucrat = bureaucrat;
 
 	SetRect(&bounds,50,50,200,100);
 	window = NewWindow( NULL, &bounds, "Window",  TRUE,  0,  NULL,  TRUE,  0);
@@ -107,3 +63,17 @@ CBureaucrat::CBureaucrat()
 	itsGopher = NULL;
 }
 
+void CView::GetTitle(Str255 &wTitle)
+{
+
+}
+
+void CView::SetTitle(Str255 &ptr)
+{
+
+}
+
+void CView::Select()
+{
+
+}

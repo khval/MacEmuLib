@@ -6,6 +6,7 @@ class CDocument : public CApplication
 
 	public:
 		CView *itsWindow;
+		CDataFile *itsFile;
 
 		void IDocument( class CBureaucrat *_supervisor, Boolean _kPrintable);
 };

@@ -2,6 +2,8 @@
 #ifndef CScrollPane_h
 #define CScrollPane_h
 
+#include "CDocument.h"
+
 class CScrollPane
 {
 	public:

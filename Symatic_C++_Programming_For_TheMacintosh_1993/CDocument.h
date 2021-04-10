@@ -1,4 +1,8 @@
 
+#ifndef CDocument_h
+#define CDocument_h
+
+#include "CDataFile.h"
 
 class CDocument : public CApplication
 {
@@ -10,4 +14,6 @@ class CDocument : public CApplication
 
 		void IDocument( class CBureaucrat *_supervisor, Boolean _kPrintable);
 };
+
+#endif
 

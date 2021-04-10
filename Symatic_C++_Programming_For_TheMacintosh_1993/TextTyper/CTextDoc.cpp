@@ -1,14 +1,13 @@
 
-
 #ifdef __amigaos4__
 #include "libMacEmu.h"
 #include "missing.h"
 #endif
 
-#include "CDocument.h"
 #include "CTextDoc.h"
 #include "CScrollPane.h"
 #include "CEditText.h"
+#include "CDataFile.h"
 
 void CTextDoc::ITextDoc( CApplication *supervisor )
 {
@@ -16,7 +15,6 @@ void CTextDoc::ITextDoc( CApplication *supervisor )
 
 	IDocument( supervisor, kPrintable);
 }
-
 
 void CTextDoc::NewFile()
 {
@@ -55,7 +53,7 @@ void CTextDoc::OpenFile(SFReply *macReply)
 
 	TRY {
 		if (theDataFile->GetLength() > kMaxFileSize )
-			::Failure(mFulErr, excExeedTELimit);
+			Failure(mFulErr, excExeedTELimit);
 		theData -> theDataFile -> ReadAll();
 	} CATCH {
 		theDataFile-> Close();
@@ -67,11 +65,11 @@ void CTextDoc::OpenFile(SFReply *macReply)
 		BuildWindow();
 		fEditText -> SetTextHandle(theData);
 	} CATCH {
-		::DisposeHandle(theData);
+		DisposeHandle(theData);
 	}
 	ENDTRY;
 
-	::DisposeHandle(theData);
+	DisposeHandle(theData);
 
 	itsFile -> GetName( theName );
 	itsWindow -> SetTitle( theName );

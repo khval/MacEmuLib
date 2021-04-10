@@ -58,7 +58,7 @@ void CTextDoc::OpenFile(SFReply *macReply)
 			::Failure(mFulErr, excExeedTELimit);
 		theData -> theDataFile -> ReadAll();
 	} CATCH {
-		theDayaFile-> Close();
+		theDataFile-> Close();
 	}
 	ENDTRY;
 

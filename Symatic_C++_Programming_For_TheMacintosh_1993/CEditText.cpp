@@ -19,3 +19,12 @@ void CEditText::ChangeSize(Rect*, bool)
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void SetTextHandle( Handle handle )
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void CEditText::SetTextHandle(char**)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}

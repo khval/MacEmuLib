@@ -6,10 +6,16 @@
 
 #include "missing.h"
 
-extern bool  n(handelEvensts)( WindowRecord *window );
+extern bool  n(handelEvensts)( GrafPort *window );
+
+void CApplication::CreateDocument()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
 
 CApplication::CApplication()
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 	cbureaucrat = NULL;
 }
 
@@ -23,6 +29,8 @@ void CApplication::Run()
 	bool quit = false;
 
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	this->CreateDocument();
 
 	if (cbureaucrat)
 	{
@@ -54,6 +62,6 @@ void CApplication::Run()
 
 void CApplication::SetUpFileParameters()
 {
-
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

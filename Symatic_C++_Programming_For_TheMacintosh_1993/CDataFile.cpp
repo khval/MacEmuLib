@@ -20,4 +20,23 @@ void CDataFile::Open(int)
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+Handle CDataFile::ReadAll()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+int CDataFile::GetLength()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void CDataFile::Close()
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void CDataFile::GetName(Str63 name)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
 

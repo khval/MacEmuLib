@@ -9,7 +9,9 @@ class CEditText
 	public:
 		void IEditText(CScrollPane*&, CDocument* const, int, int, int, int, int, int, const short int&);
 		void ChangeSize(Rect*, bool);
-		void SetTextHandle( Str63 name );
+		void SetTextHandle( Handle handle );
+
+	
 };
 
 #endif

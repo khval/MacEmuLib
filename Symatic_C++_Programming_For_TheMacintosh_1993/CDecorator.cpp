@@ -4,7 +4,7 @@
 #include "libMacEmu.h"
 #endif
 
-#include "missing.h"
+#include <CDecorator.h>
 
 int CDecorator::GetWCount()
 {

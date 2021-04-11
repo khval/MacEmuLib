@@ -152,9 +152,6 @@ typedef struct {
 	int *ctTable;
 } ** CTabHandle;
 
-#define WindowPeek WindowPtr
-// hilited
-
 typedef struct _HParamBlockRec1_ {
 	struct _HParamBlockRec2_ {
 		uint32_t ioCompletion;
@@ -188,55 +185,44 @@ typedef struct // used for fonts.
 	int _dummy_;
 } Style;
 
-typedef struct 
+typedef double Fixed;
+
+struct GrafPort
 {
-	short	device;
-	BitMap	portBits;
-	Rect		portRect;
-	void *	visRgn;
-	void *	cliprgn; 
-	Pattern	bkPat;
-	Pattern	fill;
-	Pattern	Pat;
-	Point		pnLoc;
-	Point		pnSize;
-	short	pnMode;
-	Pattern	pnPat;
-	short	pnVis;
-	Style		txfont;
-	Pattern	txFace;
-	short	txMode;
-	short	txSize;
-	short	spExtra;
-	long	fgColor;
-	long	bkColor;
-	short	colrBit;
-	short	patStretch;
-	QDHandle	picSave;
-	QDHandle	rgnSave;
-	QDHandle	polySave;
-	QDProcsPtr	grafProcs;
+	short device;
+	BitMap portBits;
+	Rect portRect;
+	RgnHandle visRgn;
+	RgnHandle clipRgn;
+	Pattern bkPat;
+	Pattern fillPat;
+	Point pnLoc;
+	Point pnSize;
+	short pnMode;
+	Pattern pnPat;
+	short pnVis;
+	short txFont;
+	Style txFace;
+	char filler;
+	short txMode;
+	short txSize;
+	Fixed spExtra;
+	long fgColor;
+	long bkColor;
+	short colrBit;
+	short patStretch;
+	Handle picSave;
+	Handle rgnSave;
+	Handle polySave;
+	QDProcsPtr grafProcs;
 
 // we add Amiga stuff to the end.
 
 	n(AWC) AmigaWindowContext;
+};
 
-} GrafPort;
-
-typedef struct _Graf
-{
-	struct _Graf *thePort;
-	Pattern white;
-	Pattern black;
-	Pattern gray;
-	Pattern tlGray;
-	Pattern dkGray;
-	Pattern arrow;
-	BitMap  screenBits;
-	LongInt randSeed;
-} Graf; 
-
-typedef Graf *GrafPtr;
+typedef struct GrafPort GrafPort;
+typedef GrafPort *GrafPtr;
 
 typedef char *StringHandle;
 
@@ -252,18 +238,7 @@ typedef PicPtr *PicHandle;
 
 struct WindowRecord
 {
-	union  // think C, might allow you access internals of Port as if they where not grouped. 
-	{
-		GrafPort port;
-
-		struct // first data of GrafPort
-		{
-			short	device;
-			BitMap	portBits;
-			Rect		portRect;
-		};
-	};
-
+    GrafPort port;
     short windowKind;
     Boolean visible;
     Boolean hilited;
@@ -282,9 +257,11 @@ struct WindowRecord
     long refCon;
 };
 
-typedef struct WindowRecord *WindowPtr;
+typedef struct WindowRecord WindowRecord;
+typedef WindowRecord *WindowPeek;
 
-//typedef GrafPort *WindowPtr;
+
+typedef GrafPtr WindowPtr;
 
 typedef struct 
 {

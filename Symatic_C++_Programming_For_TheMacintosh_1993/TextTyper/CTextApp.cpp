@@ -26,9 +26,10 @@ void CTextApp::ITextApp()
 
 void CTextApp::CreateDocument()
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 
 	CTextDoc *theDocument = new CTextDoc();
-/*
+
 	try
 	{
 		theDocument -> ITextDoc(this);
@@ -37,7 +38,7 @@ void CTextApp::CreateDocument()
 	catch (int error)
 	{
 		ForgetObject( theDocument );
-	}*/
+	}
 }
 
 void CTextApp::OpenDocument(SFReply *macReply)

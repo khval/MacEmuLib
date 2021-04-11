@@ -5,12 +5,11 @@
 class CTextApp: public CApplication
 {
 	public:
-
 		void 		ITextApp();
 
-		virtual void	CreateDocument();
-		virtual void	OpenDocument(SFReply *macReply);
-		virtual void	SetUpFileParameters();
+		void	CreateDocument();
+		void	OpenDocument(SFReply *macReply);
+		void	SetUpFileParameters() ; 
 };
 
 #endif

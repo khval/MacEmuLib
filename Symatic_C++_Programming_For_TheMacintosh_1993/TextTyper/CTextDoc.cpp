@@ -54,7 +54,7 @@ void CTextDoc::OpenFile(SFReply *macReply)
 	TRY {
 		if (theDataFile->GetLength() > kMaxFileSize )
 			Failure(mFulErr, excExeedTELimit);
-		theData -> theDataFile -> ReadAll();
+		theData = theDataFile -> ReadAll();
 	} CATCH {
 		theDataFile-> Close();
 	}

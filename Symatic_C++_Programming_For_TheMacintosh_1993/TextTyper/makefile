@@ -17,10 +17,11 @@ files += ../CDecorator.cpp
 files += ../CScrollPane.cpp
 files += ../CEditText.cpp
 files += ../CDataFile.cpp
+files += ../CView.cpp
 files += CTextDoc.cpp
 files += CTextApp.cpp
 
-name = main
+name = TextTyper
 
 objs = ${files:.cpp=.o}
 

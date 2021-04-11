@@ -601,7 +601,7 @@ WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool v
 void SelectWindow();
 void GetPort( GrafPort **ptr );
 void SetPort( GrafPort *ptr );
-void SystemClick( void *x );
+void SystemClick( void *x, void *y );
 void SystemTask();
 void TEInit();
 bool TrackGoAway( WindowPtr win ,m(where) where);

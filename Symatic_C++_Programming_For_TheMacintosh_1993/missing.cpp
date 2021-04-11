@@ -5,7 +5,7 @@
 
 #include "missing.h"
 
-bool  n(handelEvensts)( WindowRecord *window )
+bool  n(handelEvensts)( GrafPort *window )
 {
 	bool isQuit = false;
 	struct IntuiMessage *msg;
@@ -63,17 +63,4 @@ CBureaucrat::CBureaucrat()
 	itsGopher = NULL;
 }
 
-void CView::GetTitle(Str255 &wTitle)
-{
 
-}
-
-void CView::SetTitle(Str255 &ptr)
-{
-
-}
-
-void CView::Select()
-{
-
-}

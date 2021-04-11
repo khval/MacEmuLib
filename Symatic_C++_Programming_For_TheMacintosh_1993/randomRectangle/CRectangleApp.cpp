@@ -32,7 +32,7 @@ void CRectangleApp::IRectangleApp()
 
 	CRandomRectanglePane *thePane = new CRandomRectanglePane;
 	thePane -> IRandomRectanglePane(aWindow,  aDirector,  0, 0, 0, 0,
-		(SizingOption) sizeELASTIC, (SizingOption) sizeELASTIC);
+		(SizingOption) sizELASTIC, (SizingOption) sizELASTIC);
 
 	thePane -> FitToEnclosure(TRUE, TRUE);
 	aDirector -> itsGopher = thePane;

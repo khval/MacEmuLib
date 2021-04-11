@@ -11,6 +11,7 @@ incdir += -I $(p)
 incdir += -I ${p}${p}
 
 files += ../missing.cpp
+files += ../CApplication.cpp
 files += TRandom.cpp
 files += CRectangleApp.cpp
 files += CRandomRectanglePane.cpp

@@ -22,7 +22,7 @@ https://vintageapple.org/macprogramming/
 
 # Another projects of interest.
 
-TCL – ToolBox Class Library was developed for Macintosh and was originally Pascal library, and fundamental part of GUI used on the Classic MacOS, predating MacOSX, TCL should not be confused by another TCL/Tk, (TCL/Tk is short for Tool Command Language that has its history in BSD  in 1988), the aim here is try to implement a subset of TCL – Tool Box Class Library, the idea here is create set of minimum classes for tutorial examples to work on AmigaOS4.1 Operating system. These days its abandoned, and it was before YouTube was thing, so there are no videos that talk about it, luckily there is lot of Books in PDF format, floating around.
+TCL – ToolBox Class Library was developed for Macintosh and was originally Pascal library, and fundamental part of GUI used on the Classic MacOS, predating MacOSX, TCL should not be confused by another TCL/Tk, (TCL/Tk is short for Tool Command Language that has its history in BSD  in 1988), the aim here is try to implement a subset of TCL – Tool Box Class Library, the idea here is create set of minimum classes for tutorial examples to work on AmigaOS4.1 Operating system. These days TCL is abandoned, and it was before YouTube was thing, so there are no videos that talk about it, luckily there is lot of Books in PDF format, floating around.
 
 So I have googled around to find if someone done something similar, pulling resources from other project can speed up this project, or solve mysteries, I need to guess.
 

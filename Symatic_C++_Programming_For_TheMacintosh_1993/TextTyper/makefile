@@ -2,25 +2,16 @@
 c=g++
 
 p =../
+basedir += ${p}${p}
 
 libdir = -L ${p}${p}lib/
 
-libs = -lMacEmu
+libs = -lMacEmu -lTCLEmu
 
-incdir += -I $(p) -I ./
-incdir += -I ${p}${p}
+incdir += -I $(p)
+incdir += -I $(basedir)libMacEmu
+incdir += -I $(basedir)libTCLEmu
 
-files += ../missing.cpp		# i think this was is called TCL in the book.
-files += ../CApplication.cpp
-files += ../CDocument.cpp
-files += ../CDecorator.cpp
-files += ../CScrollPane.cpp
-files += ../CEditText.cpp
-files += ../CDataFile.cpp
-files += ../CView.cpp
-files += ../CWindow.cpp
-files += ../CBureaucrat.cpp
-files += ../CCollaborator.cpp
 files += CTextDoc.cpp
 files += CTextApp.cpp
 

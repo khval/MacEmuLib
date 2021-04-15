@@ -2,22 +2,16 @@
 c=g++
 
 p =../
+basedir += ${p}${p}
 
 libdir = -L ${p}${p}lib/
 
-libs = -lMacEmu
+libs = -lMacEmu -lTCLEmu
 
 incdir += -I $(p)
-incdir += -I ${p}${p}
+incdir += -I $(basedir)libMacEmu
+incdir += -I $(basedir)libTCLEmu
 
-files += ../missing.cpp
-files += ../CApplication.cpp
-files += ../CView.cpp
-files += ../CWindow.cpp
-files += ../CDirector.cpp
-files += ../CPane.cpp
-files += ../CBureaucrat.cpp
-files += ../CCollaborator.cpp
 files += TRandom.cpp
 files += CRectangleApp.cpp
 files += CRandomRectanglePane.cpp

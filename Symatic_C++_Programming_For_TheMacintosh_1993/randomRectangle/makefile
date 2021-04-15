@@ -12,6 +12,12 @@ incdir += -I ${p}${p}
 
 files += ../missing.cpp
 files += ../CApplication.cpp
+files += ../CView.cpp
+files += ../CWindow.cpp
+files += ../CDirector.cpp
+files += ../CPane.cpp
+files += ../CBureaucrat.cpp
+files += ../CCollaborator.cpp
 files += TRandom.cpp
 files += CRectangleApp.cpp
 files += CRandomRectanglePane.cpp

@@ -12,6 +12,7 @@ class CDataFile
 		int GetLength();
 		void GetName(Str63 name);
 		Handle ReadAll();
+		void WriteAll(Handle theData);
 };
 
 #endif

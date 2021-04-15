@@ -40,3 +40,8 @@ void CDataFile::GetName(Str63 name)
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void CDataFile::WriteAll(Handle theData)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+

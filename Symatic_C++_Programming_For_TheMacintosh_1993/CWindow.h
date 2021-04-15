@@ -4,16 +4,16 @@
 #ifndef CWindow_h
 #define CWindow_h
 
-class CBureaucrat;
-
 class CWindow : public CView
 {
 	public:
+		CWindow();
+		
 		void IWindow(
 			const short kind,
 			Boolean hasFloats,
-			int desktop,
-			CBureaucrat *cbureaucrat
+			int,
+			CBureaucrat *worker
 		);
 };
 

@@ -10,7 +10,9 @@
 class CDirectorOwner : public CBureaucrat
 {
 	public:
-		int __empty__;
+		int __empty1__;
+		int __empty2__;
+		int __empty3__;
 };
 
 

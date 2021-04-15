@@ -7,9 +7,16 @@ The aim of this project is make it not too hard to port or convert MacOS7.x.x pr
 
 The approach to this project is kind ad-hok, no practical strategy, everything is loosely proto typed, the assumption I work by everything is correct until its not, then I refabricate code, to make it fit, this project is pretty much about fitting a square inside circle. the assumption is that examples are always correct, and fault is always inside the library if something is broken, all examples in the project should also be compilable on MacOS 7.x.x.
 
+# License
+
 Anyway this project will fall under MIT License with exceptions.
 
 The Intended use is for libMacEmu is to be compiled into your projects, so you are allowed to use it commercially or none commercially. 
+
+# Other License's
+
+The AMS (Advanced Macintosh Substitution project)  Demos are under GPLv3 license, and can’t be used commercially.
+(only demos are included, so that this files do not pollute the lib’s.)
 
 As for the Symantic examples you should not use this commercially. I can’t and do not grant you right to sell other people’s work.
 (if it turns out I was mistaken to includes these files, then I will remove these files from the project and reupload the project without.)

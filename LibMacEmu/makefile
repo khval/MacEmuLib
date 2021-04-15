@@ -13,7 +13,7 @@ files += vector_array.cpp
 
 files_o = ${files:.cpp=.o}
 
-libDir = lib/
+libDir = ../lib/
 libName = libMacEmu.a
 
 opts = -D__USE_INLINE__

@@ -5,6 +5,8 @@
 
 #include "CBureaucrat.h"
 
+// CDirectorOwner -> CBureaucrat -> CCollaborator
+
 class CDirectorOwner : public CBureaucrat
 {
 	public:

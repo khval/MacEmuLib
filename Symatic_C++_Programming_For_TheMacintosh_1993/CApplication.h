@@ -1,12 +1,16 @@
 
 
-#include "CDirectorOwner.h"
+
 
 #ifndef CApplication_h
 #define CApplication_h
 
-class CBureaucrat;
-class CDecorator;
+#include "CCollaborator.h"
+#include "CBureaucrat.h"
+#include "CDirectorOwner.h"
+#include "CDecorator.h"
+
+// CApplication -> CDirectorOwner -> CBureaucrat -> CCollaborator
 
 class CApplication : public CDirectorOwner
 {
@@ -18,7 +22,7 @@ class CApplication : public CDirectorOwner
 		short sfFileTypes[20];
 		short gSignature;
 
-		CBureaucrat *cbureaucrat;
+		CApplication *nextApp;
 		CDecorator *gDecorator;
 
 		virtual void SetUpFileParameters();
@@ -26,6 +30,7 @@ class CApplication : public CDirectorOwner
 
 		virtual void Exit();
 		virtual void Run();
+
 };
 
 #endif

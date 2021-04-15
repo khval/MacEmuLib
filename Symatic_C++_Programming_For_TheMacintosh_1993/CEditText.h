@@ -2,16 +2,16 @@
 #ifndef CEditText_h
 #define CEditText_h
 
+#include "CView.h"
 #include "CScrollPane.h"
 
-class CEditText
+class CEditText : public CView
 {
 	public:
-		void IEditText(CScrollPane*&, CDocument* const, int, int, int, int, int, int, const short int&);
+		void IEditText(CView *object, CDocument* const, int, int, int, int, int, int, const short int&);
 		void ChangeSize(Rect*, bool);
 		void SetTextHandle( Handle handle );
-
-	
+		Handle GetTextHandle( );
 };
 
 #endif

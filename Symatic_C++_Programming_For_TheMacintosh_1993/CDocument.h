@@ -9,10 +9,16 @@ class CDocument : public CApplication
 	Boolean kPrintable;
 
 	public:
-		CView *itsWindow;
+		Boolean dirty ;
 		CDataFile *itsFile;
 
-		void IDocument( class CBureaucrat *_supervisor, Boolean _kPrintable);
+		CDocument()
+		{
+			printf("%s:%s:%d - this: %08x\n",__FILE__,__FUNCTION__,__LINE__, this);
+		}
+
+		void IDocument( CApplication *&_supervisor, Boolean _kPrintable);
+		Boolean DoSaveFileAs();
 };
 
 #endif

@@ -9,13 +9,11 @@ class CApplication;
 class CView;
 class CPane;
 
-class CBureaucrat : CCollaborator
+class CBureaucrat : public CCollaborator
 {
 	public:
 		CBureaucrat();
 		CApplication *app;
-		CView *itsWindow;		// the window to draw on.
-		CPane *itsGopher;		// the gadgets going to be drawen
 };
 
 #endif

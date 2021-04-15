@@ -2,7 +2,9 @@
 #ifndef CPane_h
 #define CPane_h
 
-class CPane		// used by CRandomRectanglePane
+#include "CView.h"
+
+class CPane : public CView		// used by CRandomRectanglePane
 {
 	public:
 		virtual int FitToEnclosure(int,int);

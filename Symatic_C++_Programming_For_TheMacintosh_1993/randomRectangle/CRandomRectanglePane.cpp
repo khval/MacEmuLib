@@ -5,6 +5,7 @@
 #endif
 
 #include "TRandom.h"
+#include "CPane.h"
 #include "CRandomRectanglePane.h"
 
 

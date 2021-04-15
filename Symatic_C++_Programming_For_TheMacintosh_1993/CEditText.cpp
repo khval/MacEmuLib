@@ -9,9 +9,11 @@
 #include "CDocument.h"
 #include "CEditText.h"
 
-void CEditText::IEditText(CScrollPane*&, CDocument*, int, int, int, int, int, int, short const&)
+void CEditText::IEditText(CView *object, CDocument *doc, int, int, int, int, int, int, short const&)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	object -> gGopher = this;
 }
 
 void CEditText::ChangeSize(Rect*, bool)
@@ -28,3 +30,9 @@ void CEditText::SetTextHandle(char**)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
+
+Handle CEditText::GetTextHandle( )
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+

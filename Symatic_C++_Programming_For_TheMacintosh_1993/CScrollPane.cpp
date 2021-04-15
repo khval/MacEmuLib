@@ -4,13 +4,16 @@
 #include "missing.h"
 #endif
 
+
 #include "CDocument.h"
-#include "CScrollPane.h"
+#include "CView.h"
 
 
-void CScrollPane::IScrollPane(CWindow*&, CDocument* const, int, int, int, int, int, int, const short int&)
+void CScrollPane::IScrollPane(CView *object, CDocument *doc , int, int, int, int, int, int, const short int&)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	object -> gGopher = this;
 }
 
 void CScrollPane::FitToEnclFrame(bool, bool)

@@ -12,6 +12,7 @@ The approach to this project is kind ad-hok, no practical strategy, everything i
 Anyway this project will fall under MIT License with exceptions.
 
 The Intended use is for libMacEmu is to be compiled into your projects, so you are allowed to use it commercially or none commercially. 
+I wont this free and liberal as possible, without taking way opportunities from anyone.
 
 # Other License's
 

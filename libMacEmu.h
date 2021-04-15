@@ -1,4 +1,7 @@
 
+#ifndef libMacEmu_h
+#define libMacEmu_h
+
 #include <proto/dos.h>
 #include <proto/exec.h>
 #include <proto/intuition.h>
@@ -673,6 +676,11 @@ class LibMacEmu		// for overloaded function, ThinkC, PowerC most be doing some m
 
 #define excExeedTELimit 1
 #define fsRdPerm 1
+#define fsWrPerm 2
 
 #define DisposeHandle(x) delete x
 #define Failure(a,b) throw(b)
+
+#endif
+
+

@@ -27,3 +27,8 @@ void CView::Select()
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void CView::Dawdle(int*)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+

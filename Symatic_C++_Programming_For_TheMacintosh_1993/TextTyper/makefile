@@ -18,6 +18,9 @@ files += ../CScrollPane.cpp
 files += ../CEditText.cpp
 files += ../CDataFile.cpp
 files += ../CView.cpp
+files += ../CWindow.cpp
+files += ../CBureaucrat.cpp
+files += ../CCollaborator.cpp
 files += CTextDoc.cpp
 files += CTextApp.cpp
 

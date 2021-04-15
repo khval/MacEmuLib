@@ -5,8 +5,8 @@
 class CTextApp: public CApplication
 {
 	public:
-		void 		ITextApp();
-
+		CTextApp();
+		void 	ITextApp();
 		void	CreateDocument();
 		void	OpenDocument(SFReply *macReply);
 		void	SetUpFileParameters() ; 

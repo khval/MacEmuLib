@@ -3,6 +3,7 @@
 #ifdef __amigaos4__
 #include "libMacEmu.h"
 #include "missing.h"
+#include "CPane.h"
 #endif
 
 #include "CRectangleApp.h"
@@ -21,23 +22,29 @@ void CRectangleApp::IRectangleApp()
 	IApplication( kExtraMasters, kRainyDayFund, kCriticalBalance, kToolboxBalance);
 
 	CDirector *aDirector = new CDirector;
-	aDirector -> IDirector(this);
+	aDirector -> IDirector(this);											// aDirector & CRectangleApp
 
 	CWindow *aWindow = new CWindow;
 
-	aWindow -> IWindow(kWINDResourceID, !kWindowFloats, gDesktop, aDirector);
-	aDirector -> itsWindow = aWindow;
+	aWindow -> IWindow(kWINDResourceID, !kWindowFloats, gDesktop, aDirector);	// Assign CDirector to CWindow.
+	aDirector -> itsWindow = aWindow;										// Assign CWindow to CDirector
 
 	printf("aDirector -> itsWindow = %08x\n", aDirector -> itsWindow);
 
 	CRandomRectanglePane *thePane = new CRandomRectanglePane;
-	thePane -> IRandomRectanglePane(aWindow,  aDirector,  0, 0, 0, 0,
+
+	printf("aDirector -> itsWindow = %08x\n", aDirector -> itsWindow);
+
+	thePane -> IRandomRectanglePane(aWindow,  aDirector,  0, 0, 0, 0,				// thePane & aDirector ( that knows itsWindow )
 		(SizingOption) sizELASTIC, (SizingOption) sizELASTIC);
 
-	thePane -> FitToEnclosure(TRUE, TRUE);
-	aDirector -> itsGopher = thePane;
+	printf("aDirector -> itsWindow = %08x, offsetof %d \n", aDirector -> itsWindow, offsetof(CDirector,itsWindow) );
 
-	printf("aDirector -> itsGopher = %08x\n", aDirector -> itsGopher);
+	thePane -> FitToEnclosure(TRUE, TRUE);									// Don't do anything.. as it is now...
+	aDirector -> itsGopher = thePane;										// Assign thePane to CDirector
+
+	printf("aDirector -> itsGopher = %08x, offsetof %d\n", aDirector -> itsGopher, offsetof(CDirector,itsGopher) );
+	printf("aDirector -> itsWindow = %08x, offsetof %d\n", aDirector -> itsWindow, offsetof(CDirector,itsWindow) );
 
 }
 

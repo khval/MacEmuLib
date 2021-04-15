@@ -10,7 +10,13 @@
 #include "CTextAPP.h"
 #include "CScrollPane.h"
 
-void CTextApp::ITextApp()
+
+CTextApp::CTextApp()				// is run manually.
+{
+	printf("%s:%s:%d - this: %08x\n",__FILE__,__FUNCTION__,__LINE__,this);
+}
+
+void CTextApp::ITextApp()				// is run manually.
 {
 	const short	kExtraMaster = 1;
 	const Size	kRainyDayFund = 45000;
@@ -24,9 +30,11 @@ void CTextApp::ITextApp()
 #define ForgetObject(x) delete x
 #endif
 
-void CTextApp::CreateDocument()
+void CTextApp::CreateDocument()		// 2en thing, we call when we run it.
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
+	// CTextDoc -> CDocument -> CApplication
 
 	CTextDoc *theDocument = new CTextDoc();
 
@@ -41,7 +49,7 @@ void CTextApp::CreateDocument()
 	}
 }
 
-void CTextApp::OpenDocument(SFReply *macReply)
+void CTextApp::OpenDocument(SFReply *macReply)		// open new file??
 {
 	CTextDoc *theDocument = new CTextDoc;
 
@@ -56,8 +64,10 @@ void CTextApp::OpenDocument(SFReply *macReply)
 	}
 }
 
-void CTextApp::SetUpFileParameters()
+void CTextApp::SetUpFileParameters()		// 1en thing, we call when we run it.
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	CApplication::SetUpFileParameters();
 	sfNumType = 1;
 	sfFileTypes[0]= 'TEXT';

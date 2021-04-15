@@ -14,10 +14,12 @@ void CTextDoc::ITextDoc( CApplication *supervisor )
 	const Boolean kPrintable = true;
 
 	IDocument( supervisor, kPrintable);
+
 }
 
 void CTextDoc::NewFile()
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 	BuildWindow();
 
 	Str255 wTitle;
@@ -102,10 +104,13 @@ Boolean CTextDoc::DoSave()
 
 Boolean CTextDoc::DoSaveAs( SFReply *macSFReply )
 {
+	printf("%s:%d:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void CTextDoc::BuildWindow()
 {
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
 	const short	kWINDResourceID = 500;
 	const Boolean	kWindowFloats = TRUE;
 	const Boolean	kFitHorizontal = TRUE;
@@ -117,19 +122,23 @@ void CTextDoc::BuildWindow()
 	const Boolean	kRedraw = TRUE;
 
 	CWindow *aWindow = new CWindow;
-	aWindow -> IWindow(kWINDResourceID, !kWindowFloats, gDesktop, this);
-	itsWindow = aWindow;
-	CScrollPane *theScrollPane = new CScrollPane;
-	theScrollPane -> IScrollPane(aWindow, this, 10, 10, 0, 0, sizELASTIC, sizELASTIC, kEditTextWidth );
-	theScrollPane -> FitToEnclFrame( kFitHorizontal, kFitVertical );
+	aWindow -> IWindow(kWINDResourceID, !kWindowFloats, gDesktop, this);					// aWindow will know about CTextDoc
+	itsWindow = aWindow;															// CTextDoc will know about the window.
+
+	printf("this -> itsWindow %08x\n", itsWindow);
+
+
+	CScrollPane *theScrollPane = new CScrollPane;							
+	theScrollPane -> IScrollPane(aWindow, this, 10, 10, 0, 0, sizELASTIC, sizELASTIC, kEditTextWidth );	// theScrollPane => aWindow & CTextDoc
+	theScrollPane -> FitToEnclFrame( kFitHorizontal, kFitVertical );								// The panel will be stretched to fit.
 
 	CEditText *thePane = new CEditText;
-	thePane -> IEditText(theScrollPane, this , 1,  1, 0, 0, sizELASTIC, sizELASTIC, kEditTextWidth );
+	thePane -> IEditText(theScrollPane, this , 1,  1, 0, 0, sizELASTIC, sizELASTIC, kEditTextWidth );		// CEditText will know about CTextDoc
 
 	Rect margin;
 	::SetRect( &margin, 2,2,-2,-2);
-	thePane -> ChangeSize( &margin, !kRedraw );
+	thePane -> ChangeSize( &margin, !kRedraw );	
 
-	gDecorator -> PlaceNewWindow( itsWindow );
+	gDecorator -> PlaceNewWindow( itsWindow );	
 }
 

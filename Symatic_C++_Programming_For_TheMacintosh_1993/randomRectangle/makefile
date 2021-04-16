@@ -27,7 +27,7 @@ opts += -Dfarcalloc=calloc
 opts += -Dfarrealloc=realloc
 
 all:	$(objs)
-	$(c) ${incdir} ${libdir} $(opts) randomRectangle.cpp $(objs) $(libs) -o $(name)
+	$(c) ${incdir} ${libdir} $(opts) $(name).cpp $(objs) $(libs) -o $(name)
 
 
 %.o:	%.cpp

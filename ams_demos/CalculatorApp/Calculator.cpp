@@ -3,6 +3,8 @@
 	-------------
 */
 
+#ifndef __amigaos4__
+
 // Mac OS X
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
@@ -42,6 +44,18 @@ using mac::qd::main_display_bounds;
 using mac::qd::wide_drag_area;
 
 
+#endif
+
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+
+
+#define rDocProc NULL
+
+#endif
+
+
 static
 WindowRef make_window()
 {
@@ -58,7 +72,7 @@ WindowRef make_window()
 	
 	WindowRef window = NewWindow( NULL,
 	                              &bounds,
-	                              "\p" "Calculator",
+	                               "Calculator",
 	                              true,
 	                              rDocProc,
 	                              (WindowRef) -1,
@@ -67,7 +81,7 @@ WindowRef make_window()
 	
 	SetPortWindowPort( window );
 	
-	BackPat( &mac::qd::ltGray() );
+//	BackPat( &mac::qd::ltGray() );
 	
 	TextFont( kFontIDGeneva );
 	TextSize( 9 );
@@ -129,18 +143,22 @@ short button_right( short x )
 	return button_left( x ) + 18;
 }
 
+
+#ifdef __amigaos4__
+uint32_t white_int = 0xFFFFFFFF;
+#endif 
+
 static
 void draw_window( const Rect& rect )
 {
 	EraseRect( &rect );
-	
 	Rect console = { 8, 8, 26, 92 };
 	
-	FillRect( &console, &mac::qd::white() );
-	
+//	FillRect( &console, &mac::qd::white() );
+	FillRect( &console, &white_int);
 	InsetRect( &console, -1, -1 );
 	FrameRect( &console );
-	
+
 	const button_desc* end = buttons + sizeof buttons / sizeof buttons[ 0 ];
 	
 	for ( const button_desc* it = buttons;  it < end;  ++it )
@@ -159,7 +177,8 @@ void draw_window( const Rect& rect )
 		
 		Rect r = { top, left, bottom, right };
 		
-		FillRect( &r, &mac::qd::white() );
+//		FillRect( &r, &mac::qd::white() );
+		FillRect( &r, &white_int);
 		FrameRect( &r );
 		
 		r.top   += 2;
@@ -178,20 +197,30 @@ void draw_window( const Rect& rect )
 		
 		DrawChar( it->name );
 	}
+
+printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+
 }
 
 static inline
 bool has_WaitNextEvent()
 {
+#if 0
 	enum { _WaitNextEvent = 0xA860 };
-	
 	return ! TARGET_CPU_68K  ||  mac::sys::trap_available( _WaitNextEvent );
+#else
+#warning nyi
+#endif
 }
 
 static inline
 Boolean WaitNextEvent( EventRecord& event )
 {
+#if 0
 	return WaitNextEvent( everyEvent, &event, 0x7FFFFFFF, NULL );
+#else
+#warning wtf
+#endif
 }
 
 static inline
@@ -206,10 +235,18 @@ int main()
 {
 	Boolean quitting = false;
 	
+#ifdef __amigaos4__
+	if (OpenMacEMU() == false) return -30;
+#endif
+
 #if ! TARGET_API_MAC_CARBON
 	
+#ifndef __amigaos4__
 	InitGraf( &qd.thePort );
-	
+#else
+#warning need to take look at this.
+#endif 	
+
 	InitFonts();
 	InitWindows();
 	InitMenus();
@@ -225,8 +262,12 @@ int main()
 	SetEventMask( everyEvent );
 	
 	WindowRef main_window = make_window();
-	
+
+#ifdef __amigaos4__
+	bool has_WNE = false;
+#else
 	const bool has_WNE = has_WaitNextEvent();
+#endif	
 	
 	while ( ! quitting )
 	{

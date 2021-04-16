@@ -87,6 +87,27 @@ void _vector_array_erase(struct _vector_array *c, void  **i )
 	}
 }
 
+
+bool _vector_array_find(struct _vector_array *c, void  *i, uint32_t *index )
+{
+	if (c->used)
+	{
+		void **used_end = c -> array + c -> used;
+		void **ptr;
+
+		for ( ptr = c -> array; ptr < used_end ; ptr ++)
+		{
+			if (*ptr == i) 
+			{
+				*index = ptr - c -> array;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
 void _vector_array_clear(struct _vector_array *c )
 {
 	while (c -> used)

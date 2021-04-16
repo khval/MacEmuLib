@@ -10,7 +10,6 @@
 #undef EraseRect
 #undef HideWindow
 #undef ShowWindow
-#undef EraseRect
 #undef GetNextEvent
 #undef Draw
 #undef Move
@@ -51,6 +50,8 @@
 #define n(name) __native__ ## name
 #define l(name) __libMacEmu__ ## name
 #define m(name) __mac__ ## name
+
+
 
 extern bool n(refresh_menu) ;
 
@@ -173,10 +174,6 @@ typedef int BitMap;
 
 typedef int32_t Pattern;
 typedef int64_t LongInt;
-
-
-
-
 typedef int *CGrafPtr;
 typedef int *QDHandle;
 typedef int *QDProcsPtr;
@@ -223,6 +220,9 @@ struct GrafPort
 
 	n(AWC) AmigaWindowContext;
 };
+
+
+#define get_portRect(x) ((struct GrafPort *) x) -> portRect
 
 typedef struct GrafPort GrafPort;
 typedef GrafPort *GrafPtr;
@@ -279,7 +279,7 @@ typedef struct
 	int what;
 	m(where) where;
 	int when;
-	int message;
+	void *message;
 	int modifiers;
 } EventRecord;
 
@@ -555,6 +555,8 @@ extern void LockPixels(char);
 extern void UnlockPixels(char);
 extern Pic **GetPicture(int);
 
+typedef GrafPort *WindowRef;
+
 #define GlobalToLocal(x)		// not something AmigaOS has, changes owner of data.
 
 typedef int TimerUPP;
@@ -570,10 +572,13 @@ extern void mprint( const char *str );
 extern bool OpenMacEMU();
 extern void CloseMacEMU();
 
-void BeginUpdate();
-void DragWindow(void *,void *,void *);
-void EndUpdate();
-void EraseRect(Rect *r);
+void BeginUpdate( GrafPort *window );
+void EndUpdate( GrafPort *window );
+
+// DragWindow( window, event.where, wide_drag_area() );
+void DragWindow(void *,m(where) _where,void *);
+
+void EraseRect(const Rect *r);
 void FillOval( Rect *bounds, uint32_t color );
 uint16_t FindWindow( m(where) where, WindowPtr *win);
 
@@ -581,11 +586,16 @@ void FlushEvents( uint32_t mask, uint32_t xxxx);
 WindowPeek FrontWindow();
 bool GetNextEvent( int opt, EventRecord *er);
 
+void *wide_drag_area();
+
 void ShowWindow( WindowPtr ptr );		// takes DialogPtr or WindowPtr as input
 void HideWindow( WindowPtr ptr );		// takes DialogPtr or WindowPtr as input
 
 #define ShowWindow(ptr) ShowWindow( (WindowPtr) ptr )
 #define HideWindow(ptr) HideWindow( (WindowPtr) ptr )
+
+
+void DisposeWindow(WindowPtr win);
 
 void 	Pt2Rect(Point p1,Point p2,Rect *r);
 void 	Prepare();
@@ -638,14 +648,19 @@ void RGBForeColor(RGBColor*rgb);
 void ForeColor(int c);
 void PaintRect(Rect *r);
 void FillCRgn(void *gBackgroundRgn,PixPatHandle gMyPat);
-
+void FillRect( Rect*r, uint32_t  *color );	// maybe wrong type of color / pen
 void SetDialogItemText(void *, const char *txt);
 void DisposeDialog();
-
 void GetFrame( LongRect *r );		// get size of window?
-
 void ConcatPStrings(Str255 str, char *cut);
 void NumToString(int wCount,char *out);
+Rect main_display_bounds();
+void SetPortWindowPort( GrafPort *window );
+void TextSize(int setValue );
+void Move(int x,int y);
+void MoveTo(int x, int y);
+void DrawChar(char Symbol);
+void SetEventMask( uint32_t mask );
 
 typedef uint32_t Size;
 

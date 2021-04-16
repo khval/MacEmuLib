@@ -86,6 +86,11 @@ void cleanup_fd()
 extern void n(detach_menu_from_window)( void *macWindow );
 extern void n(attach_menu_to_window)( void *macWindow );
 
+void 	nyi(const char *file,const char *func, int num)
+{
+	printf("%s:%s:%d -- not yet implemented\n",file,func,num);
+}
+
 void macWindow_destructor(void *item)
 {
 	WindowPtr macWindow = (WindowPtr) item;
@@ -178,6 +183,8 @@ static void cleanup()
 	if (IGraphics) DropInterface((struct Interface*) IGraphics); IGraphics = 0;
 }
 
+GrafPort *m(GrafPort) = NULL;
+
 void mac_event_queue_destructor( void *item )
 {
 	item = NULL;	// we use circle buffer... mem allocations too slow...
@@ -244,17 +251,35 @@ void CloseMacEMU()
 	cleanup();
 }
 
-void BeginUpdate(){}
-
-void DragWindow(void *a,void *b,void *c)
+void DragWindow(void *,m(where) _where,void *)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void EndUpdate(){}
-void EraseRect( Rect *r ){}
+void BeginUpdate(GrafPort *win)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 
-GrafPort *m(GrafPort) = NULL;
+	printf("win: %08x, m(GrafPort): %08x\n", win, m(GrafPort));
+
+	m(GrafPort) = win ;
+}
+
+void EndUpdate(GrafPort *win)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void EraseRect( const Rect *r )
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void PaintRect(Rect *r)
+{
+	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 
 uint16_t FindWindow(m(where) where, WindowPtr *win)
 {
@@ -407,10 +432,16 @@ void 	GetPort( GrafPort **port )
 	*port = m(GrafPort);
 }
 
-void SetPort( GrafPort *ptr)
+void SetPort( GrafPort *ptr )
 {
 	m(GrafPort) = ptr ;
 }
+
+void SetPortWindowPort( GrafPort *window )
+{
+	m(GrafPort) = window ;
+}
+
 
 EventRecord n(io)[1000];
 int n(io_pos) = 0;
@@ -469,6 +500,7 @@ void n(_get_events_and_convert)(n(AWC) *awc)
 
 				case IDCMP_INTUITICKS:
 					er-> what = updateEvt;
+					er-> message = (WindowPtr) m(GrafPort);
 					break;
 
 				case IDCMP_MENUPICK:
@@ -517,6 +549,16 @@ void n(_get_events_and_convert)(n(AWC) *awc)
 
 bool n(refresh_menu) = false;
 extern void n(create_menu)();
+
+
+void DisposeWindow(WindowPtr win)
+{
+	uint32_t index;
+	if (_vector_array_find(m(windows), (void **) win, &index ))
+	{
+		_vector_array_erase(m(windows),  m(windows) -> array + index );
+	}
+}
 
 bool GetNextEvent( int opt, EventRecord *er)
 {
@@ -669,8 +711,6 @@ void FillOval( Rect *r, uint32_t color)
 	cx = r->left + hr + win -> BorderLeft;
 	cy = r->top + vr + win -> BorderTop;
 
-
-
 	SetRPAttrs( rp,
 		RPTAG_APenColor, color, 
 		TAG_END	);
@@ -704,13 +744,54 @@ void FrameOval(Rect *r)
 	win  = m(GrafPort) -> AmigaWindowContext.win;
 	rp =  win -> RPort;
 
-	DrawEllipse( rp, cx + win -> BorderLeft,cy + win -> BorderTop,hr,vr);
+	DrawEllipse( rp, 
+		cx + win -> BorderLeft,
+		cy + win -> BorderTop,
+		hr,vr);
 }
 
 void FrameRect(Rect*r)
 {
-	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
-	RectFill( rp, r->left, r->top, r->right, r->bottom);
+	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+	struct RastPort *rp = win -> RPort;
+
+	int x0,y0,x1,y1;
+
+	x0 =	r->left + win -> BorderLeft;
+	y0 = r->top + win -> BorderTop;
+	x1 = r->right + win -> BorderLeft;
+	y1 =	r->bottom + win -> BorderTop;
+	
+	IGraphics -> Move( rp, x0,y0 );
+	IGraphics -> Draw( rp, x1,y0 );
+	IGraphics -> Draw( rp, x1,y1 );
+	IGraphics -> Draw( rp, x0,y1 );
+	IGraphics -> Draw( rp, x0,y0 );
+
+}
+
+void FillRect( Rect*r, uint32_t  *color )	// maybe wrong type of color / pen
+{
+	printf("FillRect( Rect: %08x, color: %08x\n" ,r, color);
+
+	printf("m(GrafPort): %08x\n",m(GrafPort));
+	printf("m(GrafPort) -> AmigaWindowContext.win: %08x\n", m(GrafPort) -> AmigaWindowContext.win);
+	printf("m(GrafPort) -> AmigaWindowContext.win -> RPort: %08x\n", m(GrafPort) -> AmigaWindowContext.win -> RPort);
+
+	{
+		struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+		struct RastPort *rp = win -> RPort;
+
+		SetRPAttrs( rp,
+			RPTAG_APenColor, *color, 
+			TAG_END	);
+
+		RectFill( rp, 
+			r->left + win -> BorderLeft, 
+			r->top + win -> BorderTop, 
+			r->right + win -> BorderLeft,
+			r->bottom + win -> BorderTop);
+	}
 }
 
 void GetFrame( LongRect *r )		// not sure if this correct, some examples suggest its window draw aria.
@@ -718,10 +799,10 @@ void GetFrame( LongRect *r )		// not sure if this correct, some examples suggest
 	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
 	struct RastPort *rp = win -> RPort;
 
-	r -> left = win -> BorderLeft;
-	r -> top = win -> BorderTop;
-	r -> right = win -> Width - win -> BorderRight;
-	r -> bottom = win -> Height -  win -> BorderBottom;
+	r -> left = 0;
+	r -> top = 0;
+	r -> right = win -> Width - win -> BorderRight - win -> BorderLeft;
+	r -> bottom = win -> Height -  win -> BorderBottom - win -> BorderTop;
 }
 
 void DrawString(const char *text)
@@ -732,11 +813,12 @@ void DrawString(const char *text)
 
 void OpenDeskAcc(GrafPtr port)
 {
-
+	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
 void CloseDeskAcc( short windowKind )
 {
+	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ExitToShell()
@@ -747,10 +829,12 @@ void ExitToShell()
 
 bool SystemEdit( int item )
 {
+	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
 void SysBeep(int nr)
 {
+	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
 void 	Pt2Rect(Point p1,Point p2,Rect *r)
@@ -781,3 +865,56 @@ void NumToString(int num,char *out)
 	sprintf(out,"%d",num);
 }
 
+Rect main_display_bounds()
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void TextSize(int setValue )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void Move(int x,int y)
+{
+	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+	struct RastPort *rp =  win -> RPort;
+
+	m(GrafPort) -> pnLoc.x  = x;
+	m(GrafPort) -> pnLoc.y  = y;
+
+	IGraphics -> Move(rp, 
+			x + win -> BorderLeft,
+			y + win -> BorderTop);
+}
+
+void MoveTo(int x, int y)
+{
+	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+	struct RastPort *rp =  win -> RPort;
+
+	m(GrafPort) -> pnLoc.x  += x;
+	m(GrafPort) -> pnLoc.y  += y;
+
+	IGraphics -> Move( 
+		rp, 
+		m(GrafPort) -> pnLoc.x + win -> BorderLeft,
+		m(GrafPort) -> pnLoc.y + win -> BorderTop);
+}
+
+void DrawChar(char Symbol)
+{
+	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
+	char data[2] = {Symbol, 0};
+	Text( rp, data, 1) ;
+}
+
+void SetEventMask( uint32_t mask )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void *wide_drag_area()
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}

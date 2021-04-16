@@ -16,4 +16,5 @@ void _vector_array_clear(struct _vector_array *c );
 void **_vector_array_push_back(struct _vector_array *c,  void  *i );
 bool _vector_array_delete(struct _vector_array *c);
 void _vector_array_for_each(struct _vector_array *c, void (*etch_item) (void *item) );
+bool _vector_array_find(struct _vector_array *c, void  *i, uint32_t *index );
 

@@ -8,6 +8,8 @@
 #undef ShowWindow
 #undef SetPort
 
+qd_t qd;
+
 PixMap screenBits;
 
 GrafPort this_GrafPort;	// this maybe wrong... but it will be changed, its place holder.
@@ -86,7 +88,7 @@ void cleanup_fd()
 extern void n(detach_menu_from_window)( void *macWindow );
 extern void n(attach_menu_to_window)( void *macWindow );
 
-void 	nyi(const char *file,const char *func, int num)
+static void 	nyi(const char *file,const char *func, int num)
 {
 	printf("%s:%s:%d -- not yet implemented\n",file,func,num);
 }
@@ -251,7 +253,7 @@ void CloseMacEMU()
 	cleanup();
 }
 
-void DragWindow(void *,m(where) _where,void *)
+void DragWindow(void *,m(where) _where,const Rect *)
 {
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -292,9 +294,9 @@ uint16_t FindWindow(m(where) where, WindowPtr *win)
 
 void FlushEvents( uint32_t mask, uint32_t xxxx);
 
-WindowPeek FrontWindow()
+WindowPtr FrontWindow()
 {
-	return (WindowPeek) m(GrafPort);
+	return (WindowPtr) m(GrafPort);
 }
 
 void HideWindow( WindowPtr win ){}
@@ -315,14 +317,14 @@ void InitFonts()
 	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void InitGraf()
+void InitGraf(void *)
 {
-	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
 void InitWindows()
 {
-	printf("%s:%s:%d\n",__FILE__,__FUNCTION__,__LINE__);
+	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
 void InsetRect( Rect *r, short w,short h )
@@ -341,15 +343,32 @@ void SetRect(Rect *r,short x0,short y0,short x1,short y1)
 	r->bottom=y1;
 }
 
-void InvalRect(){}
+void InvalRect(const Rect *r)
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
 void MaxApplZone(){}
 
 #define IDCMP_COMMON IDCMP_MOUSEBUTTONS | IDCMP_INACTIVEWINDOW | IDCMP_ACTIVEWINDOW  | \
 	IDCMP_CHANGEWINDOW | IDCMP_MOUSEMOVE | IDCMP_REFRESHWINDOW | IDCMP_RAWKEY | \
 	IDCMP_EXTENDEDMOUSE | IDCMP_CLOSEWINDOW | IDCMP_NEWSIZE | IDCMP_INTUITICKS | IDCMP_MENUPICK | IDCMP_GADGETUP
 
+WindowPtr NewCWindow( 
+	int wStorage, 
+	const Rect *bounds, 
+	const unsigned char*  title,
+	Boolean visible,
+	short procID,
+	WindowPtr behind,
+	Boolean goAwayFlag,
+	SInt32 refCon )
+{
+	return NewWindow(  NULL, bounds, (const char *) title,  visible,  procID,  behind,  goAwayFlag, refCon);
+}
 
-WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon)
+
+WindowPtr NewWindow( WindowPeek wStorage, const Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, long refCon)
 {
 	int window_width, window_height;
 	WindowPtr macWindow;
@@ -500,7 +519,7 @@ void n(_get_events_and_convert)(n(AWC) *awc)
 
 				case IDCMP_INTUITICKS:
 					er-> what = updateEvt;
-					er-> message = (WindowPtr) m(GrafPort);
+					er-> message = (uint32_t) m(GrafPort);
 					break;
 
 				case IDCMP_MENUPICK:
@@ -805,12 +824,6 @@ void GetFrame( LongRect *r )		// not sure if this correct, some examples suggest
 	r -> bottom = win -> Height -  win -> BorderBottom - win -> BorderTop;
 }
 
-void DrawString(const char *text)
-{
-	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
-	Text( rp, text, strlen(text) );
-}
-
 void OpenDeskAcc(GrafPtr port)
 {
 	nyi(__FILE__,__FUNCTION__,__LINE__);
@@ -880,12 +893,13 @@ void Move(int x,int y)
 	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
 	struct RastPort *rp =  win -> RPort;
 
-	m(GrafPort) -> pnLoc.x  = x;
-	m(GrafPort) -> pnLoc.y  = y;
+	m(GrafPort) -> pnLoc.x  += x;
+	m(GrafPort) -> pnLoc.y  += y;
 
-	IGraphics -> Move(rp, 
-			x + win -> BorderLeft,
-			y + win -> BorderTop);
+	IGraphics -> Move(
+		rp, 
+		m(GrafPort) -> pnLoc.x + win -> BorderLeft,
+		m(GrafPort) -> pnLoc.y + win -> BorderTop);
 }
 
 void MoveTo(int x, int y)
@@ -893,8 +907,8 @@ void MoveTo(int x, int y)
 	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
 	struct RastPort *rp =  win -> RPort;
 
-	m(GrafPort) -> pnLoc.x  += x;
-	m(GrafPort) -> pnLoc.y  += y;
+	m(GrafPort) -> pnLoc.x  = x;
+	m(GrafPort) -> pnLoc.y  = y;
 
 	IGraphics -> Move( 
 		rp, 
@@ -904,9 +918,45 @@ void MoveTo(int x, int y)
 
 void DrawChar(char Symbol)
 {
-	struct RastPort *rp = m(GrafPort) -> AmigaWindowContext.win -> RPort;
+	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+	struct RastPort *rp =  win -> RPort;
 	char data[2] = {Symbol, 0};
+
+	m(GrafPort) -> fgColor = 0xFF000000;
+ 	m(GrafPort) -> bkColor = 0xFFFFFFFF;
+
+	IGraphics -> Move( 
+		rp, 
+		m(GrafPort) -> pnLoc.x + win -> BorderLeft,
+		m(GrafPort) -> pnLoc.y + win -> BorderTop );
+
+	SetRPAttrs( rp,
+		RPTAG_APenColor, m(GrafPort) -> fgColor, 
+		RPTAG_BPenColor, m(GrafPort) -> bkColor, 
+		TAG_END	);
+
 	Text( rp, data, 1) ;
+}
+
+void DrawString(const char *str)
+{
+	struct Window *win = m(GrafPort) -> AmigaWindowContext.win;
+	struct RastPort *rp =  win -> RPort;
+
+	m(GrafPort) -> fgColor = 0xFF000000;
+ 	m(GrafPort) -> bkColor = 0xFFFFFFFF;
+
+	IGraphics -> Move( 
+		rp, 
+		m(GrafPort) -> pnLoc.x + win -> BorderLeft,
+		m(GrafPort) -> pnLoc.y + win -> BorderTop );
+
+	SetRPAttrs( rp,
+		RPTAG_APenColor, m(GrafPort) -> fgColor, 
+		RPTAG_BPenColor, m(GrafPort) -> bkColor, 
+		TAG_END	);
+
+	Text( rp, str, strlen(str)) ;
 }
 
 void SetEventMask( uint32_t mask )
@@ -914,7 +964,80 @@ void SetEventMask( uint32_t mask )
 	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
 
-void *wide_drag_area()
+void HideCursor()
 {
 	nyi(__FILE__,__FUNCTION__,__LINE__);
 }
+
+void LMSetDeskPattern( const Pattern *pattern )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+GrafPort *LMGetWMgrPort()
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void PaintOne( void *, RgnHandle visRgn )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void FlashMenuBar( int value )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void MoveWindow( WindowRef window, int x, int y, bool opt )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void DrawGrowIcon( WindowRef window )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+long GrowWindow( WindowRef window, m(where) where, const Rect *grow_size )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void SizeWindow( WindowRef window, int h, int v, bool opt )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void *LMGetWindowList()
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void *LMGetGrayRgn()
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void 	PaintBehind(void *,void *)
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void OpenPort(GrafPort *gfxPort)
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+OSErr BeginFullScreen( 
+		Ptr fullscreen_context, void *gd,void *width, void *height, 	WindowPtr *window, 
+		void *, int )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+
+void EndFullScreen( Ptr fullscreen_context, int )
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
+

@@ -18,6 +18,8 @@
 #undef Read
 #undef Open
 #undef Close
+#undef MoveWindow
+#undef SizeWindow
 
 #define Point _mac_Point_
 #define FSOpen _mac_FSOpen
@@ -120,18 +122,26 @@ typedef uint32_t OSErr;
 typedef bool Boolean;
 
 typedef struct {
-	short left;
 	short top;
-	short right;
+	short left;
 	short bottom;
+	short right;
 } Rect;
 
 typedef struct {
-	int left;
 	int top;
-	int right;
+	int left;
 	int bottom;
+	int right;
 } LongRect;
+
+typedef LongRect CGRect;
+
+#define CGRectGetMinY(r) ((r).top < (r).bottom ? (r).top :(r).bottom)
+#define CGRectGetMinX(r) ((r).left < (r).right ? (r).left :(r).right)
+#define CGRectGetMaxY(r) ((r).top > (r).bottom ? (r).top :(r).bottom)
+#define CGRectGetMaxX(r) ((r).left > (r).right ? (r).left :(r).right)
+
 
 typedef struct {
 
@@ -170,9 +180,38 @@ typedef struct _HParamBlockRec1_ {
 
 typedef void * CInfoPBPtr;
 
-typedef int BitMap;
+typedef struct 
+{
+	Rect bounds;
+} BitMap;
 
-typedef int32_t Pattern;
+typedef signed int SInt32;
+
+struct Pattern
+{
+	union 
+	{
+		uint32_t value;
+		struct 
+		{
+			unsigned char a;
+			unsigned char r;
+			unsigned char g;
+			unsigned char b;
+		};
+	};
+
+	Pattern()
+	{
+		value = 0;
+	}
+
+	uint32_t &operator=( uint32_t &argb)
+	{
+		return value = argb;
+	}
+};
+
 typedef int64_t LongInt;
 typedef int *CGrafPtr;
 typedef int *QDHandle;
@@ -279,7 +318,7 @@ typedef struct
 	int what;
 	m(where) where;
 	int when;
-	void *message;
+	uint32_t message;
 	int modifiers;
 } EventRecord;
 
@@ -342,7 +381,18 @@ typedef struct {
 typedef GD *GDPtr;
 typedef GDPtr *GDHandle;
 
+extern WindowPtr NewCWindow( 
+	int number, 
+	const Rect *bounds, 
+	const unsigned char*  title,
+	Boolean vis,
+	short proc,
+	WindowPtr behind,
+	Boolean closable,
+	SInt32 ref );
+
 extern WindowPtr GetNewCWindow( int a, long, WindowPtr );
+
 extern GDHandle GetMainDevice();
 
 typedef struct Process * TMTask;		// guess, we need a Amiga process here.
@@ -368,9 +418,15 @@ enum	// Gestalt
 };
 
 typedef struct {
-void *thePort;
-} qd;
+	void *thePort;
+	Pattern black;
+	Pattern dkGray;
+	Pattern gray;
+	Pattern ltGray;
+	Pattern white;
+} qd_t;
 
+extern qd_t qd;
 
 #define GetCursor(watchCursor) 0;
 
@@ -400,6 +456,7 @@ enum	// event where in window.
 	inSysWindow = 1,
 	inMenuBar,
 	inDrag,
+	inGrow,
 	inContent,
 	inGoAway
 };
@@ -502,6 +559,11 @@ extern console_options_type console_options;
 
 enum
 {
+	kWindowContentRgn = 1
+};
+
+enum
+{
 	scUserCancelled = 1
 };
 
@@ -555,6 +617,10 @@ extern void LockPixels(char);
 extern void UnlockPixels(char);
 extern Pic **GetPicture(int);
 
+extern void LMSetDeskPattern( const Pattern *pattern );
+extern GrafPort *LMGetWMgrPort();
+extern void PaintOne( void *, RgnHandle visRgn );
+
 typedef GrafPort *WindowRef;
 
 #define GlobalToLocal(x)		// not something AmigaOS has, changes owner of data.
@@ -576,17 +642,17 @@ void BeginUpdate( GrafPort *window );
 void EndUpdate( GrafPort *window );
 
 // DragWindow( window, event.where, wide_drag_area() );
-void DragWindow(void *,m(where) _where,void *);
+void DragWindow(void *,m(where) _where,const Rect *);
 
 void EraseRect(const Rect *r);
 void FillOval( Rect *bounds, uint32_t color );
 uint16_t FindWindow( m(where) where, WindowPtr *win);
 
 void FlushEvents( uint32_t mask, uint32_t xxxx);
-WindowPeek FrontWindow();
+WindowRef FrontWindow();
 bool GetNextEvent( int opt, EventRecord *er);
 
-void *wide_drag_area();
+// Rect *wide_drag_area();		// should be in namespace QT, not sure it should be here.
 
 void ShowWindow( WindowPtr ptr );		// takes DialogPtr or WindowPtr as input
 void HideWindow( WindowPtr ptr );		// takes DialogPtr or WindowPtr as input
@@ -604,13 +670,13 @@ void HiliteMenu();
 void InitCursor();
 void InitDialogs();
 void InitFonts();
-void InitGraf();
+void InitGraf(void *);
 void InitMenus();
 void InitWindows();
-void InsetRect( Rect *r, short w,short h );
-void InvalRect();
+void InsetRect( Rect *r, short w,short h ); // makes changes to Rect !
+void InvalRect(const Rect *r);
 void MaxApplZone();
-WindowPtr NewWindow( WindowPeek wStorage, Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon);
+WindowPtr NewWindow( WindowPeek wStorage, const Rect *bounds,const char *title, bool visible, uint32_t procID, WindowPtr behind, bool goAwayFlag, 	long refCon);
 void SelectWindow();
 void GetPort( GrafPort **ptr );
 void SetPort( GrafPort *ptr );
@@ -660,7 +726,31 @@ void TextSize(int setValue );
 void Move(int x,int y);
 void MoveTo(int x, int y);
 void DrawChar(char Symbol);
+void DrawString(const char *str);
 void SetEventMask( uint32_t mask );
+void HideCursor();
+void OpenPort(GrafPort *gfxPort);
+
+void 	PaintBehind(void *,void *);
+void *LMGetWindowList();
+void *LMGetGrayRgn();
+void GetWindowBounds( WindowRef window, uint32_t opt, Rect *bounds );
+void MoveWindow( WindowRef window, int x, int y, bool opt );
+void SizeWindow( WindowRef window, int h, int v, bool opt );
+void FlashMenuBar( int value );
+long GrowWindow( WindowRef window, m(where) where, const Rect *grow_size );
+void DrawGrowIcon( WindowRef window );
+
+OSErr BeginFullScreen( 
+		Ptr fullscreen_context, 		// 1
+		void *gd,					// 2
+		void *width, 				// 3
+		void *height, 				// 4
+		WindowPtr *window, 		// 5
+		void *, 					// 6
+		int );
+
+void EndFullScreen( Ptr fullscreen_context, int );
 
 typedef uint32_t Size;
 

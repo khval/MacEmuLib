@@ -50,8 +50,17 @@ using mac::qd::wide_drag_area;
 #include "libMacEmu.h"
 #include "missing.h"
 
-
 #define rDocProc NULL
+
+void 	nyi(const char *file,const char *func, int num)
+{
+	printf("%s:%s:%d -- not yet implemented\n",file,func,num);
+}
+
+Rect *wide_drag_area()
+{
+	nyi(__FILE__,__FUNCTION__,__LINE__);
+}
 
 #endif
 

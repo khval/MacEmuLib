@@ -3,6 +3,15 @@
 	-------
 */
 
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+#define documentProc NULL
+#endif
+
+
+#ifndef __amigaos4__
+
 // Mac OS X
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
@@ -28,6 +37,8 @@
 
 // Nostalgia
 #include "Nostalgia/MacWindows.hh"
+
+#endif
 
 // TestApp
 #include "desktop.hh"
@@ -84,9 +95,13 @@ static
 const Rect* drag_bounds()
 {
 #if ! TARGET_API_MAC_CARBON
+
+#if ! defined(__amigaos4__)
 	
 	return &LMGetGrayRgn()[0]->rgnBBox;
-	
+
+#endif	
+
 #endif
 	
 	return NULL;  // DragWindow() bounds may be NULL in Carbon
@@ -134,6 +149,8 @@ void EraseRect( const Rect& rect )
 	EraseRect( &rect );
 }
 
+#ifndef __amigaos4__
+
 static inline
 bool has_WaitNextEvent()
 {
@@ -148,6 +165,22 @@ Boolean WaitNextEvent( EventRecord& event )
 	return WaitNextEvent( everyEvent, &event, 0x7FFFFFFF, NULL );
 }
 
+#else
+
+// we have this, on AmigaOS4, but this not std Mac Stuff...
+
+bool has_WaitNextEvent()
+{
+	return false;
+}
+
+Boolean WaitNextEvent( EventRecord& event )
+{
+	return true;
+}
+
+#endif
+
 static inline
 Boolean GetNextEvent( EventRecord& event )
 {
@@ -161,6 +194,10 @@ int main()
 	Boolean quitting = false;
 	int menu_bar_inversion_level = 0;
 	
+#ifdef __amigaos4__
+	if (OpenMacEMU() == false) return -30;
+#endif
+
 #if ! TARGET_API_MAC_CARBON
 	
 	InitGraf( &qd.thePort );
@@ -271,7 +308,7 @@ int main()
 								
 								main_window = NewWindow( NULL,
 								                         &bounds,
-								                         "\p",
+								                         "",
 								                         true,
 								                         documentProc,
 								                         (WindowRef) -1,

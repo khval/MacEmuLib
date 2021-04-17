@@ -3,7 +3,13 @@
 	----------
 */
 
-#include "display.hh"
+
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+#endif
+
+#ifndef __amigaos4__
 
 // Mac OS X
 #ifdef __APPLE__
@@ -22,6 +28,9 @@
 #include <Quickdraw.h>
 #endif
 
+#endif
+
+#include "display.hh"
 
 static
 Rect Rect_from_CGRect( const CGRect& r )
@@ -35,6 +44,8 @@ Rect Rect_from_CGRect( const CGRect& r )
 	
 	return result;
 }
+
+#ifndef libMacEmu_h	
 
 const Rect& main_display_bounds()
 {
@@ -56,3 +67,5 @@ const Rect& main_display_bounds()
 	
 #endif
 }
+
+#endif

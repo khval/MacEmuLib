@@ -3,6 +3,8 @@
 	----------
 */
 
+#ifndef __amigaos4__
+
 #include "desktop.hh"
 
 // Mac OS X
@@ -18,6 +20,17 @@
 #include <MacWindows.h>
 #endif
 
+#endif
+
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+
+extern void LMSetDeskPattern( const Pattern *pattern );
+extern GrafPort *LMGetWMgrPort();
+extern void PaintOne( void *, RgnHandle visRgn );
+
+#endif
 
 void set_desktop_pattern( const Pattern& pattern )
 {

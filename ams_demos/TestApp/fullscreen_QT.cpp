@@ -3,7 +3,15 @@
 	----------------
 */
 
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+#endif
+
 #include "fullscreen_QT.hh"
+
+
+#ifndef __amigaos4__
 
 // Mac OS X
 #ifdef __APPLE__
@@ -19,6 +27,8 @@
 // Mac OS
 #ifndef __MOVIES__
 #include <Movies.h>
+#endif
+
 #endif
 
 

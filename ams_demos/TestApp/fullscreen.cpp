@@ -3,7 +3,13 @@
 	-------------
 */
 
-#include "fullscreen.hh"
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+#endif
+
+
+#ifndef __amigaos4__
 
 // Mac OS X
 #ifdef __APPLE__
@@ -18,6 +24,9 @@
 // mac-sys-utils
 #include "mac_sys/gestalt.hh"
 
+#endif
+
+#include "fullscreen.hh"
 // TestApp
 #include "fullscreen_QT.hh"
 #include "fullscreen_port.hh"
@@ -38,7 +47,7 @@ bool has_QT_v2_5()
 	
 	const SInt32 v2_5 = 0x02500000;
 	
-	return mac::sys::gestalt( 'qtim' ) >= v2_5;
+//	return mac::sys::gestalt( 'qtim' ) >= v2_5;
 }
 
 static const bool has_QT_fullscreen = has_QT_v2_5();
@@ -66,5 +75,5 @@ void leave_fullscreen()
 		refresh_screen();
 	}
 	
-	SetPortWindowPort( FrontWindow() );
+	SetPortWindowPort( (GrafPort *) FrontWindow() );
 }

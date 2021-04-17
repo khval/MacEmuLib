@@ -5,6 +5,8 @@
 
 #include "fullscreen_port.hh"
 
+#ifndef __amigaos4__
+
 // Mac OS X
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
@@ -21,6 +23,27 @@
 // mac-sys-utils
 #include "mac_sys/gestalt.hh"
 
+#endif
+
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+#endif
+
+#ifdef __amigaos4__
+// fake until we make it..
+
+namespace mac
+{
+namespace sys
+{
+bool gestalt_defined( short id )
+{
+	return false;
+}
+} // end namespace
+} // end namespace
+#endif
 
 #if ! TARGET_API_MAC_CARBON
 

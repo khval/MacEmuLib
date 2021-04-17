@@ -241,12 +241,7 @@ int main()
 
 #if ! TARGET_API_MAC_CARBON
 	
-#ifndef __amigaos4__
 	InitGraf( &qd.thePort );
-#else
-#warning need to take look at this.
-#endif 	
-
 	InitFonts();
 	InitWindows();
 	InitMenus();

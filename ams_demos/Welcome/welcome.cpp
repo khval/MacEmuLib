@@ -3,6 +3,9 @@
 	----------
 */
 
+#ifndef __amigaos4__
+
+
 // Mac OS X
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
@@ -62,6 +65,32 @@ bool has_color_quickdraw()
 	return mac::sys::gestalt( 'qd  ' ) > 0;
 }
 
+#endif
+
+#ifdef __amigaos4__
+#include "libMacEmu.h"
+#include "missing.h"
+
+#define rDocProc NULL
+#define dBoxProc NULL
+
+static inline bool in_v68k()
+{
+	return true;
+}
+
+static inline bool has_color_quickdraw()
+{
+	return true;
+}
+
+typedef signed int SInt32;
+
+int MBarHeight = 0;
+
+#endif
+
+
 static
 WindowRef new_window( const Rect*           bounds,
                       const unsigned char*  title,
@@ -79,7 +108,7 @@ WindowRef new_window( const Rect*           bounds,
 	}
 	else
 	{
-		return NewWindow( 0, bounds, title, vis, proc, behind, closable, ref );
+		return NewWindow( 0, bounds, (const char *) title, vis, proc, behind, closable, ref );
 	}
 }
 
@@ -97,10 +126,10 @@ WindowRef create_window()
 	bounds.top    = (bounds.bottom - height) / 3 - 4;
 	bounds.bottom = bounds.top + height;
 	
-	return new_window( &bounds, "\p", true, dBoxProc, (WindowRef) -1, false, 0 );
+	return new_window( &bounds, (const unsigned char*) "", true, dBoxProc, (WindowRef) -1, false, 0 );
 }
 
-#define WELCOME( name ) "\p" "Welcome to " name "."
+#define WELCOME( name ) "Welcome to " name "."
 
 static
 void draw_window( WindowRef window )
@@ -111,22 +140,30 @@ void draw_window( WindowRef window )
 	
 	EraseRect( &portRect );
 	
+#ifdef __amigaos4__
+	SInt32 micn = 0;
+#else
 	SInt32 micn = mac::sys::gestalt( 'micn' );
+#endif
 	
 	const short icon_h = 16;
 	const short icon_v = 16;
 	
 	const Rect icon_rect = { icon_v, icon_h, icon_v + 32, icon_h + 32 };
 	
+#ifndef __amigaos4__
 	mac::qd::plot_icon_id( icon_rect, micn );
+#endif
 	
 	const short text_h = 100;
 	const short text_v = 36;
 	
 	MoveTo( text_h, text_v );
 	
-	DrawString( "\p" "Welcome to Advanced Mac Substitute." );
+	DrawString( "Welcome to Advanced Mac Substitute." );
 }
+
+#ifndef __amigaos4__
 
 static inline
 bool has_WaitNextEvent()
@@ -142,6 +179,14 @@ Boolean WaitNextEvent( EventRecord& event )
 	return WaitNextEvent( everyEvent, &event, 0x7FFFFFFF, NULL );
 }
 
+
+#else
+
+#define has_WaitNextEvent() false
+#define WaitNextEvent(ev ) false
+
+#endif
+
 static inline
 Boolean GetNextEvent( EventRecord& event )
 {
@@ -154,6 +199,10 @@ int main()
 {
 	Boolean quitting = false;
 	
+#ifdef __amigaos4__
+	if (OpenMacEMU() == false) return -30;
+#endif
+
 #if ! TARGET_API_MAC_CARBON
 	
 	if ( TARGET_CPU_68K  &&  in_v68k() )
@@ -177,9 +226,11 @@ int main()
 #endif
 	
 	WindowRef main_window = create_window();
-	
+
 	const bool has_WNE = has_WaitNextEvent();
 	
+	draw_window( main_window );
+
 	while ( ! quitting )
 	{
 		EventRecord event;
@@ -209,6 +260,8 @@ int main()
 			}
 		}
 	}
+
+	CloseMacEMU();
 	
 	return 0;
 }
